@@ -2,6 +2,7 @@ import pygame;
 import os;
 import tkinter as tk;
 
+
 class CampoBatalla():
     def __init__(self, titulo, dimCuadros, dimFrame, colorCuadros, colorLineas):
         self.titulo = titulo;
@@ -10,6 +11,14 @@ class CampoBatalla():
         self.colorCuadros = colorCuadros; #azul = (24, 22, 67);
         self.colorLineas = colorLineas; #morado = (88, 40, 165);
 
+    def limpiarPosItems(self):
+        pass
+
+    def obtenerPosActual(self):
+        pass
+
+    def actualizarPos(self):
+        pass
     def dibujarCampo(self):
         pygame.init()
         framePG = pygame.display.set_mode(self.dimFrame)
@@ -53,7 +62,6 @@ class Escenario(Ventana):
         pygame.display.init()
         pygame.display.update()
 
-
 class Menu(Ventana):
     def __init__(self, dimensiones, titulo, colorFondo):
         super().__init__(dimensiones, titulo)  
@@ -79,8 +87,8 @@ class Menu(Ventana):
 
     def salir(self):
         self.root.destroy();
+ 
+class Main():
+    if __name__ == "__main__":
+        app = Menu("1200x600", "Menú", (88, 40, 165)) #último parametro==tupla RGB del color azul 
 
-
-# Instanciamos la clase
-if __name__ == "__main__":
-    app = Menu("1200x600", "Menú", (88, 40, 165))
