@@ -1,7 +1,10 @@
 from random import random
-
+"""
+Clase Padre Personaje
+"""
 class Personaje():
-    vida=15
+    vidaMaxima=10
+    vida=vidaMaxima
     ataque=2
     rangoAtaque = 1
     vulnerable=False
@@ -15,6 +18,14 @@ class Personaje():
         self.ubicacion = casilla
     def mover(self):#valida hacia donde mover, puede ser distinto en zombi y en alien
         self.accionesTurno -= 1
+    def getVidaMax(self):
+        return vidaMaxima
+    def avanzarNivel(self,item):
+        exp = item.aplicarExp()
+        if self.vida < self.vidaMaxima:
+            self.vida += exp - (self.vidaMaxima-self.vida)
+        self.vidaMaxima += exp
+        self.ataque += exp
     def getVida(self):
         return self.vida
     def restarVida(self,ataqueRecibo):
@@ -32,7 +43,6 @@ class Personaje():
         self.accionesTurno += turnos
     def atacar(self):
         self.accionesTurno -= 1
-        pass #por hacer
     def morir(self):
         if self.vida <= 0:
             return True
@@ -74,6 +84,9 @@ class Alien(Personaje):
     def __init__(self,pnombre,habilidades):
         self.nombre=pnombre
         super().__init__(habilidades,3,"baseAlien") #listaHabilidades, acciones por turno y baseAlien(es un objeto tipo Casilla)
+    def atacar(self):
+        self.nivelRuido+=armaEquipada.hacerRuido()
+        return super().atacar()
     def usarItem(self,item):
         self.accionesTurno -= 1
         pass#por hacer
