@@ -81,9 +81,13 @@ class Alien(Personaje):
     inventario=[object]#lista de items
     armaEquipada="Arma"#atributo tipo Arma
     nivelRuido=1
-    def __init__(self,pnombre,habilidades):
+    nombre = ""
+    def __init__(self,pnombre):#,habilidades
         self.nombre=pnombre
-        super().__init__(habilidades,3,"baseAlien") #listaHabilidades, acciones por turno y baseAlien(es un objeto tipo Casilla)
+        super().__init__(["comer"],3,"baseAlien") #listaHabilidades, acciones por turno y baseAlien(es un objeto tipo Casilla)
+    def getNombre(self):
+        return self.nombre
+
     def atacar(self):
         self.nivelRuido+=armaEquipada.hacerRuido()
         return super().atacar()
