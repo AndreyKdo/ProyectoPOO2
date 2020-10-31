@@ -1,51 +1,8 @@
 import pygame;
 import os, sys;
-import tkinter as tk;
 import random
-from backend.Personaje import Alien
-class Casilla:
-    def __init__(self, framePG, tipo):
-        self.tipo = ""
-        self.framePG = framePG
-        # ---------------------
-        #image_path = os.path.join("data", "images")
-        #self.image = pygame.image.load(os.path.join(image_path, filename)).convert_alpha()
-        #self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
-   
-class Obstaculo(Casilla):
-    def __init__(self, tipo, bloqueoIzq, bloqueoDer, bloqueoArr, bloqueoAba):
-        super().__init__(self, tipo)
-        self.bloqueoIzq = bloqueoIzq
-        self.bloqueoDer = bloqueoDer
-        self.bloqueoArr = bloqueoArr
-        self.bloqueoAba = bloqueoAba
-        self.imgObst = 'obstaculo.png'
-
-    def setBloqueoIzq(self, bloqueoIzq):
-        self.bloqueoIzq #preguntar 
-
-    def consultarBloqueoIzq(self, bloqueoIzq):
-        return self.bloqueoIzq
-
-class Base(Casilla):
-    def __init__(self, tipo, conquistada, aliada):
-        super().__init__(self, tipo)
-        self.imgBaseAliada = 'baseZombie.png'
-        self.imgBaseEnemiga = 'baseAlien.png'
-
-    def evaluarConquistada(self):
-        pass
-
-class SpawningPoint(Casilla):
-    def __init__(self, tipo, zombi):
-        super().__init__(self, tipo)
-        #self.zombi = Zombi()
-        self.imgSpPt = 'spwnPt.png'
-        #self.dimCuadros = 100 #OJO que está alambrado
-
-    def crearZombi(self):
-        pass
-
+from Clases.Casilla import *
+from Clases.Personaje import Alien
 class CampoBatalla(pygame.sprite.Sprite):
     def __init__(self, titulo, dimCuadros, dimFrame, colorCuadros, colorLineas):
         pygame.sprite.Sprite.__init__(self) #herencia
@@ -146,19 +103,19 @@ class CampoBatalla(pygame.sprite.Sprite):
         return framePG
 
     def getCasillaSeleccionada(self):
-        posicion = pygame.mouse.get_pos()#captura el lugar donde se da click
+        posicion = pygame.mouse.get_pos()
         columna = posicion[0] // ( self.dimCuadros + 1) #width
         fila = posicion[1] // ( self.dimCuadros + 1) #altura
         self.matriz[fila][columna] = 1 #Cambiarle el color a la casilla
         print("Posición ", posicion, "Coordenadas en nuestra cuadrícula: ", fila, columna)
         
-    def manejarEventos(self):#mantiene escucha
+    def manejarEventos(self):
         while not self.terminar:
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     self.salir()
-                elif evento.type == pygame.KEYDOWN:#enter
-                    if evento.key == pygame.K_ESCAPE:#escape para salir
+                elif evento.type == pygame.KEYDOWN:
+                    if evento.key == pygame.K_ESCAPE:
                         self.salir()
                 elif evento.type == pygame.MOUSEBUTTONDOWN:
                     self.getCasillaSeleccionada()
@@ -261,12 +218,12 @@ class Inicio(pygame.sprite.Sprite):
         #sys.exit()
         self.terminar = True
 
-    def mantenerEscucha(self):#keep listening, esperando eventos
+    def mantenerEscucha(self):
         while not self.terminar:
             for eventos in pygame.event.get():
                 if eventos.type == pygame.QUIT:
                     self.salir()
-                elif eventos.type == pygame.KEYDOWN:#enter, llama a jugar
+                elif eventos.type == pygame.KEYDOWN:
                     self.jugar()
             #framePG.blit(self.imgTitulo,(100,100))
             self.color = (random.randrange(1, 255), random.randrange(1, 255), random.randrange(1, 255))
@@ -277,6 +234,4 @@ class Inicio(pygame.sprite.Sprite):
 class Main():
     if __name__ == "__main__":
         app = Inicio("Zombie Galaxy", (1012, 600))
-
-
-
+        
