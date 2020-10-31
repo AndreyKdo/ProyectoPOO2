@@ -138,9 +138,9 @@ class Vestibulo(pygame.sprite.Sprite):
         #self.colorFondo = colorFondo
         self.ruta = os.path.dirname(__file__)#importante!! captura la ruta de este archivo sin importar la computadora
 
-        self.alien1 = PersonajeAlien(self.ruta,"alien1.png","Andrómeda")
-        self.alien2 = PersonajeAlien(self.ruta,"alien2.png","Osa Mayor")
-        self.alien3 = PersonajeAlien(self.ruta,"alien3.png","Orión")
+        self.alien1 = PersonajeAlien(self.ruta,"imagenes/alien1.png","Andrómeda")
+        self.alien2 = PersonajeAlien(self.ruta,"imagenes/alien2.png","Osa Mayor")
+        self.alien3 = PersonajeAlien(self.ruta,"imagenes/alien3.png","Orión")
         self.posX  =100
         self.posY = 50
         self.framePG =  pygame.display.set_mode(dimensiones)
@@ -187,8 +187,8 @@ class Inicio(pygame.sprite.Sprite):
         #self.colorFondo = colorFondo
         pygame.init() 
         self.ruta = os.path.dirname(__file__)
-        self.imgZombie = pygame.image.load(os.path.join(self.ruta, "titulo.png"))
-        self.imgGalaxy = pygame.image.load(os.path.join(self.ruta, "titulo2.png"))
+        self.imgZombie = pygame.image.load(os.path.join(self.ruta, "imagenes/titulo.png"))
+        self.imgGalaxy = pygame.image.load(os.path.join(self.ruta, "imagenes/titulo2.png"))
         self.posX  =100
         self.posY = 50
         self.framePG =  pygame.display.set_mode(dimensiones)
