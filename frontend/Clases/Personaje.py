@@ -1,4 +1,5 @@
 from random import random
+from Clases.Habilidad import *
 """
 Clase Padre Personaje
 """
@@ -37,6 +38,8 @@ class Personaje():
         self.ataque += valor
     def getVulnerable(self):
         return self.vulnerable
+    def getHabilidades(self):
+        return self.habilidades
     def setVulnerable(self,booleano):
         self.vulnerable = booleano
     def sumarTurnos(self,turnos):
@@ -84,10 +87,24 @@ class Alien(Personaje):
     nombre = ""
     def __init__(self,pnombre):#,habilidades
         self.nombre=pnombre
-        super().__init__(["comer"],3,"baseAlien") #listaHabilidades, acciones por turno y baseAlien(es un objeto tipo Casilla)
+        super().__init__(self.definirHabilidades(),3,"baseAlien") #listaHabilidades, acciones por turno y baseAlien(es un objeto tipo Casilla)
     def getNombre(self):
         return self.nombre
-
+    def definirHabilidades(self):
+        listaHabilidades = []
+        if self.nombre == "Andrómeda":
+            listaHabilidades.append(MenosRuido("Silenciantenas",10," Los silenciosos habitantes de esta galaxia son imperceptibles al oído humano... al menos la mayoría del tiempo."))
+            listaHabilidades.append(Teletransporte("Cinturón de Gusano",2," Este simpático alienígena tiene la afición de visitar los lugares que anteriormente ha visitado, tanto así que se ha fabricado un cinturón a partir de espacio-tiempo."))
+            listaHabilidades.append(MenosRuido("Mirada Confusa",5," ¡No mires a este alienígena directamente a los ojos! La última vez que un humano lo hizo, este comenzó a morderse la lengua y a pegarse el dedo chiquito del pie."))
+        elif self.nombre == "Osa Mayor":
+            listaHabilidades.append(Escalar("Tentáculosos",1," Los habitantes de esta constelación no necesitan ascensor, ni escaleras, ni arnés. ¿Escalar el Himalaya? Eso es como dar un paseo en el parque para este espécimen."))
+            listaHabilidades.append(MultiAtaque("Octo-Punch",2," Para este alienígena aparentemente pacífico, las artes marciales es como aprender a caminar. Si te enfrentas con él, mejor ve consiguiendo cita con el dentista... y unos 4 cascos de fibra de carbono."))
+            listaHabilidades.append(TurnoExtra("Fast-Opus",5," Una vez pusieron a competir a este Alienígena con el actual Récord Guiness de armar cubos de rubik. El reloj no había ni comenzado a marcar el segundo, cuando este fue batido ¡8 veces! Obtiene un turno extra con su capacidad."))
+        else: #Si self.nombre == "Orión":
+            listaHabilidades.append(MasAlcance("Cazador",1," Los habitantes de Orión son por naturaleza grandes cazadores que atinan la jabalina a un punto específico desde grandes distancias. Dales cualquier tipo de arma, ponte una manzana en la cabeza y trata de cerrar los ojos antes de su tiro."))
+            listaHabilidades.append(RepeleAtaque("Elastipiel",2," Este alienígena es profesional en esquivar hasta el más mínimo embate. ¡Orión es una constelación genial para jugar quemados!"))
+            listaHabilidades.append(Invisible("Traje de Invisibilidad",5," Él puede pasar frente tus narices sin que lo veas, sus ropas lo hacen ser imperceptible a todo ojo del universo conocido. ¡Quiero su traje para espiar a mi gato en la noche sin que me vea!"))
+        return listaHabilidades
     def atacar(self):
         self.nivelRuido+=armaEquipada.hacerRuido()
         return super().atacar()
@@ -102,6 +119,8 @@ class Alien(Personaje):
         self.visible = booleano
     def getRuido(self):
         return self.nivelRuido
+    def setRuido(self,reductor):
+        self.nivelRuido -= reductor
     def setRuido(self,ruidoGenerado):
         self.nivelRuido = ruidoGenerado
 

@@ -9,58 +9,57 @@ class Habilidad():
 """
 Habilidades especiales para Aliens (la mayoría se puede generalizar para todo personaje)
 """
+#para Alien Andrómeda
 class MenosRuido(Habilidad):#solo funciona para alien
     def __init__(self, nombre, valor, descripcion):
         super().__init__(nombre, valor, descripcion)
     def usarHabilidad(self,personaje):
         personaje.setRuido(self.valor)
-
+#para Alien Andrómeda
 class Teletransporte(Habilidad):#funciona tanto para aliens como para zombis
-    def __init__(self, nombre, valor, descripcion,casilla):
+    def __init__(self, nombre, valor, descripcion):
         super().__init__(nombre, valor, descripcion)  
-        self.destino = casilla
-    def usarHabilidad(self,personaje):
-        personaje.setUbicacion(self.destino)
-
+    def usarHabilidad(self,personaje,destino):
+        personaje.setUbicacion(destino)
+#para Alien Andrómeda
 class Confusion(Habilidad):#funciona tanto para aliens como para zombis
     def __init__(self, nombre, valor, descripcion):
         super().__init__(nombre, valor, descripcion)
     def usarHabilidad(self,personaje):
         personaje.restarVida(self.valor)
- 
+#para Alien Osa Mayor
 class Escalar(Habilidad):#funciona tanto para aliens como para zombis
-    def __init__(self, nombre, valor, descripcion,casilla):
+    def __init__(self, nombre, valor, descripcion):
         super().__init__(nombre, valor, descripcion)
-        self.obstaculo = casilla
-    def usarHabilidad(self,personaje):
-        personaje.setUbicacion(self.obstaculo)
-
+    def usarHabilidad(self,personaje,casilla):
+        personaje.setUbicacion(casilla)
+#para Alien Osa Mayor
 class MultiAtaque(Habilidad):#funciona tanto para aliens como para zombis
     def __init__(self, nombre, valor, descripcion):
         super().__init__(nombre, valor, descripcion)
     def usarHabilidad(self,personaje):
         for i in range(1,self.valor):
             personaje.atacar()
-
+#para Alien Osa Mayor
 class TurnoExtra(Habilidad):#solo funciona para alien
     def __init__(self, nombre, valor, descripcion):
         super().__init__(nombre, valor, descripcion)
     def usarHabilidad(self,personaje):
         personaje.sumarTurnos(self.valor)
-
-class masAlcance(Habilidad):#solo funciona para alien
+#para Alien Orión
+class MasAlcance(Habilidad):#solo funciona para alien
     def __init__(self, nombre, valor, descripcion):
         super().__init__(nombre, valor, descripcion)
     def usarHabilidad(self,personaje):
         personaje.sumarRango(self.valor)
-
-class repeleAtaque(Habilidad):#funciona tanto para aliens como para zombis
+#para Alien Orión
+class RepeleAtaque(Habilidad):#funciona tanto para aliens como para zombis
     def __init__(self, nombre, valor, descripcion):
         super().__init__(nombre, valor, descripcion)
     def usarHabilidad(self,personaje):
         personaje.setVulnerable(False)
-
-class invisible(Habilidad):#solo funciona para alien
+#para Alien Orión
+class Invisible(Habilidad):#solo funciona para alien
     def __init__(self, nombre, valor, descripcion):
         super().__init__(nombre, valor, descripcion)
     def usarHabilidad(self,personaje):
@@ -69,12 +68,12 @@ class invisible(Habilidad):#solo funciona para alien
 """
 Habilidades únicas para zombis
 """
-class oidoAgudo(Habilidad):
+class OidoAgudo(Habilidad):
     def __init__(self, nombre, valor, descripcion):
         super().__init__(nombre, valor, descripcion)
     def usarHabilidad(self,zombi):
         zombi.setRuido(10)
-class rapidez(Habilidad):
+class Rapidez(Habilidad):
     def __init__(self, nombre, valor, descripcion):
         super().__init__(nombre, valor, descripcion)
     def usarHabilidad(self,zombi):

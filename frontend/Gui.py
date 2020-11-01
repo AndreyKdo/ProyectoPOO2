@@ -126,24 +126,48 @@ class PersonajeAlien():
     def __init__(self,ruta,imagen,nombre):
         self.imgAlien = pygame.image.load(os.path.join(ruta, imagen))
         self.alien = Alien(nombre)
-        self.imprimirAlien()
-    def imprimirAlien(self):
-        print(self.alien.getNombre())
+        #self.imprimirAlien()
+    def obtenerHabilidades(self):
+        texto = "Habilidades de "+self.alien.getNombre()+":\n"
+        for habilidad in self.alien.getHabilidades():
+            texto += "\n"+habilidad.nombre+":"+habilidad.descripcion+"\n"
+        return texto
     def getImagen(self):
         return self.imgAlien
-
+class Boton():   
+    def __init__(self,x,y,ancho,alto,texto,screen):
+        self.x = x
+        self.y = y
+        self.ancho = ancho
+        self.alto = alto
+        self.textoBoton = texto
+        self.rectangulo = pygame.Rect(x,y,ancho,alto)
+        self.screen = screen
+        self.fuente = pygame.font.SysFont("Arial",25)
+    def dibujarBoton(self):
+        pygame.draw.rect(self.screen,(30, 139, 176),self.rectangulo,0)#variable de la pantalla, (colores RGB), rectangulo, borde
+        texto = self.fuente.render(self.textoBoton,True,((random.randrange(0, 100), random.randrange(0, 100), random.randrange(0, 100))))
+        self.screen.blit(texto, (self.x+((self.ancho-texto.get_width())/2),self.y+(self.alto-texto.get_height())/2))#centra el texto en el boton
+    def verificarPresionado(self):
+        if self.rectangulo.collidepoint(pygame.mouse.get_pos()):
+            return True
+        else:
+            return False
+        
 class Vestibulo(pygame.sprite.Sprite):
     def __init__(self, titulo, dimensiones):
         pygame.sprite.Sprite.__init__(self) #herencia  
         #self.colorFondo = colorFondo
+        self.framePG =  pygame.display.set_mode(dimensiones)
         self.ruta = os.path.dirname(__file__)#importante!! captura la ruta de este archivo sin importar la computadora
-
         self.alien1 = PersonajeAlien(self.ruta,"imagenes/alien1.png","Andrómeda")
         self.alien2 = PersonajeAlien(self.ruta,"imagenes/alien2.png","Osa Mayor")
         self.alien3 = PersonajeAlien(self.ruta,"imagenes/alien3.png","Orión")
+        self.botonAndromeda = Boton(112, 407,120,50,"Seleccionar",self.framePG)
+        self.botonOsaMayor = Boton(444, 407,120,50,"Seleccionar",self.framePG)
+        self.botonOrion = Boton(760, 407,120,50,"Seleccionar",self.framePG)
         self.posX  =100
         self.posY = 50
-        self.framePG =  pygame.display.set_mode(dimensiones)
         pygame.display.set_caption(titulo)
         self.terminar = False
         self.mantenerEscucha()
@@ -163,10 +187,24 @@ class Vestibulo(pygame.sprite.Sprite):
         self.terminar = True
     def getPersonajeSeleccionado(self):
         posicion = pygame.mouse.get_pos()#captura el lugar donde se da click
-        print(posicion)
-    def botones(self):
-        pass
-        
+        if self.botonAndromeda.verificarPresionado():
+            self.mostrarHabilidades(self.alien1)
+        elif self.botonOsaMayor.verificarPresionado():
+            self.mostrarHabilidades(self.alien2)
+        elif self.botonOrion.verificarPresionado():
+            self.mostrarHabilidades(self.alien3)
+        else:
+            print(posicion)
+    def mostrarHabilidades(self,palien):
+        texto = palien.obtenerHabilidades()
+##        fuente = pygame.font.Font(None,30)
+##        mensaje = fuente.render(texto, 0, (200, 60, 80))
+##        self.framePG.blit(mensaje, (0, 0))
+        print(texto)
+    def dibujarBotones(self):
+        self.botonAndromeda.dibujarBoton()
+        self.botonOsaMayor.dibujarBoton()
+        self.botonOrion.dibujarBoton()
     def mantenerEscucha(self):#keep listening, esperando eventos
         while not self.terminar:
             for eventos in pygame.event.get():
@@ -178,7 +216,7 @@ class Vestibulo(pygame.sprite.Sprite):
                     self.getPersonajeSeleccionado()
             #framePG.blit(self.imgTitulo,(100,100))
             self.insertarImgs()
-            self.botones()
+            self.dibujarBotones()
             pygame.display.update()         
 
 class Inicio(pygame.sprite.Sprite):
@@ -199,6 +237,8 @@ class Inicio(pygame.sprite.Sprite):
         self.terminar = False
         self.mantenerEscucha()
 
+    def getDimensiones(self):
+        return self.dimensiones
     def insertarTxt(self):
         self.texto= self.font.render("Presione enter para comenzar", True, (self.color), (0,0,0))
         textRect = self.texto.get_rect()  
