@@ -3,6 +3,7 @@ import random
 import pygame
 from Clases.Casilla import *
 from Clases.Personaje import Alien
+
 class CampoBatalla(pygame.sprite.Sprite):
     def __init__(self, titulo, dimCuadros, dimFrame, colorCuadros, colorLineas):
         pygame.sprite.Sprite.__init__(self) #herencia
@@ -12,7 +13,7 @@ class CampoBatalla(pygame.sprite.Sprite):
         self.colorCuadros = colorCuadros; #azul = (24, 22, 67);
         self.colorLineas = colorLineas; #morado = (88, 40, 165);
         self.matriz = self.generarMatriz()
-        self.imagen = ""
+        self.ruta = os.path.dirname(__file__)
         self.framePG = self.dibujarCampoBatalla()
         
         #self.casilla = Casilla(self.framePG, self.matriz, "", self.dimCuadros)
@@ -36,49 +37,69 @@ class CampoBatalla(pygame.sprite.Sprite):
 
     def dibujarCasillaEstandar(self, fila, columna):
         color = self.colorCuadros #azul
-        pygame.draw.rect(self.framePG,
+        #imagen = pygame.image.load(os.path.join(self.ruta, "imagenes/baseZombie.png")).convert_alpha()
+        #imagen = pygame.transform.scale(imagen, (self.dimCuadros, self.dimCuadros))
+        cuadro= pygame.draw.rect(self.framePG,
                         color,
                         [(1 + self.dimCuadros) * columna + 1,
                         (1 + self.dimCuadros) * fila + 1,
                         self.dimCuadros,
                         self.dimCuadros])
+
+        #self.framePG.blit(imagen, cuadro)
         pygame.display.flip()
 
     def dibujarCasillaBase(self, fila, columna):
-        color = (0, 0, 0) #self.imgBaseEnemiga
-        pygame.draw.rect(self.framePG,
+        color = (24, 22, 67) #self.imgBaseEnemiga
+        imagen = pygame.image.load(os.path.join(self.ruta, "imagenes/baseAlien.png")).convert_alpha()
+        imagen = pygame.transform.scale(imagen, (self.dimCuadros, self.dimCuadros))
+        cuadro= pygame.draw.rect(self.framePG,
                         color,
                         [(1 + self.dimCuadros) * columna + 1,
                         (1 + self.dimCuadros) * fila + 1,
                         self.dimCuadros,
                         self.dimCuadros])
+
+        self.framePG.blit(imagen, cuadro)
         pygame.display.flip()
 
     def dibujarCasillaObs(self, fila, columna):
-        color = (0, 255, 0) #setear self.imgObst
-        pygame.draw.rect(self.framePG,
+        color = (24, 22, 67) #setear self.imgObst
+        imagen = pygame.image.load(os.path.join(self.ruta, "imagenes/obstaculo.png")).convert_alpha()
+        imagen = pygame.transform.scale(imagen, (self.dimCuadros, self.dimCuadros))
+        cuadro= pygame.draw.rect(self.framePG,
                         color,
                         [(1 + self.dimCuadros) * columna + 1,
                         (1 + self.dimCuadros) * fila + 1,
                         self.dimCuadros,
                         self.dimCuadros])
+
+        self.framePG.blit(imagen, cuadro)
         pygame.display.flip()
 
     def dibujarCasillaSpPt(self, fila, columna):
-        color = (255, 0, 0) #setear self.imgSpPt
-        pygame.draw.rect(self.framePG,
+        color = (24, 22, 67) #setear self.imgSpPt
+        imagen = pygame.image.load(os.path.join(self.ruta, "imagenes/spwnPt.png")).convert_alpha()
+        imagen = pygame.transform.scale(imagen, (self.dimCuadros, self.dimCuadros))
+        cuadro= pygame.draw.rect(self.framePG,
                         color,
                         [(1 + self.dimCuadros) * columna + 1,
                         (1 + self.dimCuadros) * fila + 1,
                         self.dimCuadros,
                         self.dimCuadros])
+
+        self.framePG.blit(imagen, cuadro)
         pygame.display.flip()
 
     def dibujarCasillas(self):
         for fila in range( len(self.matriz)):
             for columna in range (len(self.matriz[fila])):
                 if (self.matriz[fila][columna]) != 0:
-                    self.dibujarCasillaObs(fila, columna)
+                    #self.dibujarCasillaObs(fila, columna)
+                    #self.dibujarCasillaSpPt(fila, columna)
+                    self.dibujarCasillaBase(fila, columna)
+                    #self.dibujarCasillaEstandar(fila, columna)
+                    
                     #if self.matriz[fila][columna][0] == "sp":
                         #self.dibujarCasillaSpPt(fila, columna)
                     #elif self.matriz[fila][columna][0] == "obstaculo":
@@ -132,10 +153,12 @@ class Boton():
         self.rectangulo = pygame.Rect(x,y,ancho,alto)
         self.screen = screen
         self.fuente = pygame.font.SysFont("Arial",25)
+        
     def dibujarBoton(self):
         pygame.draw.rect(self.screen,(30, 139, 176),self.rectangulo,0)#variable de la pantalla, (colores RGB), rectangulo, borde
         texto = self.fuente.render(self.textoBoton,True,((random.randrange(0, 100), random.randrange(0, 100), random.randrange(0, 100))))
         self.screen.blit(texto, (self.x+((self.ancho-texto.get_width())/2),self.y+(self.alto-texto.get_height())/2))#centra el texto en el boton
+        
     def verificarPresionado(self):
         if self.rectangulo.collidepoint(pygame.mouse.get_pos()):
             return True
@@ -162,8 +185,10 @@ class Vestibulo(pygame.sprite.Sprite):
         self.alienSeleccionado;#atributo para el alien seleccionado
     def setAlienSeleccionado(self,alien):
         self.alienSeleccionado = alien;
+        
     def getAlienSeleccionado(self):
         return self.alienSeleccionado;
+    
     def insertarImgs(self):
         self.framePG.blit(self.alien1.getImagen(), (self.posX, self.posY))
         self.framePG.blit(self.alien2.getImagen(), (self.posX+300, self.posY+100))
@@ -174,8 +199,8 @@ class Vestibulo(pygame.sprite.Sprite):
         campoBatalla= CampoBatalla("Galaxia Zombi", 100, (1012, 600), (24, 22, 67), (88, 40, 165));
        
     def salir(self):
-        #pygame.quit()
-        #sys.exit()
+        pygame.quit()
+        sys.exit()
         self.terminar = True
     def getPersonajeSeleccionado(self):
         posicion = pygame.mouse.get_pos()#captura el lugar donde se da click
@@ -190,16 +215,19 @@ class Vestibulo(pygame.sprite.Sprite):
             self.setAlienSeleccionado(self.alien3);
         else:
             print(posicion)
+            
     def mostrarHabilidades(self,palien):
         texto = palien.obtenerHabilidades()
 ##        fuente = pygame.font.Font(None,30)
 ##        mensaje = fuente.render(texto, 0, (200, 60, 80))
 ##        self.framePG.blit(mensaje, (0, 0))
         print(texto)
+        
     def dibujarBotones(self):
         self.botonAndromeda.dibujarBoton()
         self.botonOsaMayor.dibujarBoton()
         self.botonOrion.dibujarBoton()
+        
     def mantenerEscucha(self):#keep listening, esperando eventos
         while not self.terminar:
             for eventos in pygame.event.get():
@@ -213,6 +241,8 @@ class Vestibulo(pygame.sprite.Sprite):
             self.insertarImgs()
             self.dibujarBotones()
             pygame.display.update()         
+
+
 
 class Inicio(pygame.sprite.Sprite):
     def __init__(self, titulo, dimensiones):
@@ -249,8 +279,8 @@ class Inicio(pygame.sprite.Sprite):
         Vestibulo("Personaje", (1012, 600))
         
     def salir(self):
-        #pygame.quit()
-        #sys.exit()
+        pygame.quit()
+        sys.exit()
         self.terminar = True
 
     def mantenerEscucha(self):
