@@ -10,7 +10,7 @@ class Habilidad():
 Habilidades especiales para Aliens (la mayoría se puede generalizar para todo personaje)
 """
 #para Alien Andrómeda
-class MenosRuido(Habilidad):#solo funciona para alien
+class MenosRuido(Habilidad):#solo funciona para alien, anula el ruido
     def __init__(self, nombre, valor, descripcion):
         super().__init__(nombre, valor, descripcion)
     def usarHabilidad(self,personaje):
@@ -68,7 +68,7 @@ class Invisible(Habilidad):#solo funciona para alien
 """
 Habilidades únicas para zombis
 """
-class OidoAgudo(Habilidad):
+class OidoAgudo(Habilidad):#se mueve más casillas si escucha ruido
     def __init__(self, nombre, valor, descripcion):
         super().__init__(nombre, valor, descripcion)
     def usarHabilidad(self,zombi):

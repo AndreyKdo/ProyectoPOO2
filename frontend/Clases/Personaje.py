@@ -1,5 +1,8 @@
+import pygame;
+import os, sys;
 from random import random
 from Clases.Habilidad import *
+
 """
 Clase Padre Personaje
 """
@@ -85,17 +88,24 @@ class Alien(Personaje):
     armaEquipada="Arma"#atributo tipo Arma
     nivelRuido=1
     nombre = ""
-    def __init__(self,pnombre):#,habilidades
+    def __init__(self,pnombre,ruta,imagen):#,habilidades
         self.nombre=pnombre
+        self.imgAlien = pygame.image.load(os.path.join(ruta, imagen))
         super().__init__(self.definirHabilidades(),3,"baseAlien") #listaHabilidades, acciones por turno y baseAlien(es un objeto tipo Casilla)
     def getNombre(self):
         return self.nombre
+    def obtenerHabilidades(self):
+        texto = "Habilidades de "+self.getNombre()+":\n"
+        for habilidad in self.getHabilidades():
+            texto += "\n"+habilidad.nombre+":"+habilidad.descripcion+"\n"
+        return texto
     def definirHabilidades(self):
         listaHabilidades = []
         if self.nombre == "Andrómeda":
+            #anula el sonido de una casilla
             listaHabilidades.append(MenosRuido("Silenciantenas",10," Los silenciosos habitantes de esta galaxia son imperceptibles al oído humano... al menos la mayoría del tiempo."))
             listaHabilidades.append(Teletransporte("Cinturón de Gusano",2," Este simpático alienígena tiene la afición de visitar los lugares que anteriormente ha visitado, tanto así que se ha fabricado un cinturón a partir de espacio-tiempo."))
-            listaHabilidades.append(MenosRuido("Mirada Confusa",5," ¡No mires a este alienígena directamente a los ojos! La última vez que un humano lo hizo, este comenzó a morderse la lengua y a pegarse el dedo chiquito del pie."))
+            listaHabilidades.append(Confusion("Mirada Confusa",5," ¡No mires a este alienígena directamente a los ojos! La última vez que un humano lo hizo, este comenzó a morderse la lengua y a pegarse el dedo chiquito del pie."))
         elif self.nombre == "Osa Mayor":
             listaHabilidades.append(Escalar("Tentáculosos",1," Los habitantes de esta constelación no necesitan ascensor, ni escaleras, ni arnés. ¿Escalar el Himalaya? Eso es como dar un paseo en el parque para este espécimen."))
             listaHabilidades.append(MultiAtaque("Octo-Punch",2," Para este alienígena aparentemente pacífico, las artes marciales es como aprender a caminar. Si te enfrentas con él, mejor ve consiguiendo cita con el dentista... y unos 4 cascos de fibra de carbono."))
@@ -123,5 +133,7 @@ class Alien(Personaje):
         self.nivelRuido -= reductor
     def setRuido(self,ruidoGenerado):
         self.nivelRuido = ruidoGenerado
+    def getImagen(self):
+        return self.imgAlien
 
 

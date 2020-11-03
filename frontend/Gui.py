@@ -1,6 +1,6 @@
-import pygame;
 import os, sys;
 import random
+import pygame
 from Clases.Casilla import *
 from Clases.Personaje import Alien
 class CampoBatalla(pygame.sprite.Sprite):
@@ -121,19 +121,7 @@ class CampoBatalla(pygame.sprite.Sprite):
                     self.getCasillaSeleccionada()
             self.dibujarCasillas()
             pygame.display.update()
-
-class PersonajeAlien():
-    def __init__(self,ruta,imagen,nombre):
-        self.imgAlien = pygame.image.load(os.path.join(ruta, imagen))
-        self.alien = Alien(nombre)
-        #self.imprimirAlien()
-    def obtenerHabilidades(self):
-        texto = "Habilidades de "+self.alien.getNombre()+":\n"
-        for habilidad in self.alien.getHabilidades():
-            texto += "\n"+habilidad.nombre+":"+habilidad.descripcion+"\n"
-        return texto
-    def getImagen(self):
-        return self.imgAlien
+    
 class Boton():   
     def __init__(self,x,y,ancho,alto,texto,screen):
         self.x = x
@@ -160,9 +148,9 @@ class Vestibulo(pygame.sprite.Sprite):
         #self.colorFondo = colorFondo
         self.framePG =  pygame.display.set_mode(dimensiones)
         self.ruta = os.path.dirname(__file__)#importante!! captura la ruta de este archivo sin importar la computadora
-        self.alien1 = PersonajeAlien(self.ruta,"imagenes/alien1.png","Andrómeda")
-        self.alien2 = PersonajeAlien(self.ruta,"imagenes/alien2.png","Osa Mayor")
-        self.alien3 = PersonajeAlien(self.ruta,"imagenes/alien3.png","Orión")
+        self.alien1 = Alien("Andrómeda",self.ruta,"imagenes/alien1.png")
+        self.alien2 = Alien("Osa Mayor",self.ruta,"imagenes/alien2.png")
+        self.alien3 = Alien("Orión",self.ruta,"imagenes/alien3.png")
         self.botonAndromeda = Boton(112, 407,120,50,"Seleccionar",self.framePG)
         self.botonOsaMayor = Boton(444, 407,120,50,"Seleccionar",self.framePG)
         self.botonOrion = Boton(760, 407,120,50,"Seleccionar",self.framePG)
@@ -171,7 +159,11 @@ class Vestibulo(pygame.sprite.Sprite):
         pygame.display.set_caption(titulo)
         self.terminar = False
         self.mantenerEscucha()
-
+        self.alienSeleccionado;#atributo para el alien seleccionado
+    def setAlienSeleccionado(self,alien):
+        self.alienSeleccionado = alien;
+    def getAlienSeleccionado(self):
+        return self.alienSeleccionado;
     def insertarImgs(self):
         self.framePG.blit(self.alien1.getImagen(), (self.posX, self.posY))
         self.framePG.blit(self.alien2.getImagen(), (self.posX+300, self.posY+100))
@@ -189,10 +181,13 @@ class Vestibulo(pygame.sprite.Sprite):
         posicion = pygame.mouse.get_pos()#captura el lugar donde se da click
         if self.botonAndromeda.verificarPresionado():
             self.mostrarHabilidades(self.alien1)
+            self.setAlienSeleccionado(self.alien1);#asigna el personaje seleccionado
         elif self.botonOsaMayor.verificarPresionado():
             self.mostrarHabilidades(self.alien2)
+            self.setAlienSeleccionado(self.alien2);
         elif self.botonOrion.verificarPresionado():
             self.mostrarHabilidades(self.alien3)
+            self.setAlienSeleccionado(self.alien3);
         else:
             print(posicion)
     def mostrarHabilidades(self,palien):
