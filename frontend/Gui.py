@@ -11,10 +11,10 @@ class CampoBatalla(pygame.sprite.Sprite):
         self.dimCuadros = int(dimCuadros) #100
         self.dimFrame = dimFrame; #(1012, 600);
         self.colorCuadros = colorCuadros; #azul = (24, 22, 67);
-        self.colorLineas = colorLineas; #morado = (88, 40, 165);
-        self.matriz = self.generarMatriz()
+        self.colorLineas = colorLineas; #morado = (88, 40, 165)
         self.ruta = os.path.dirname(__file__)
         self.framePG = self.dibujarCampoBatalla()
+        self.matriz = self.generarMatriz()
         
         #self.casilla = Casilla(self.framePG, self.matriz, "", self.dimCuadros)
         self.terminar =False
@@ -26,93 +26,28 @@ class CampoBatalla(pygame.sprite.Sprite):
             matrizCuadriculada.append([])
             for columna in range(10):
                 if fila== 5 and columna == 0: 
-                    matrizCuadriculada[fila].append(list(["base", False, True])) 
+                    matrizCuadriculada[fila].append(Base(self.framePG, self.ruta, False, True)) 
                 elif fila== 5 and columna == 9:
-                    matrizCuadriculada[fila].append(list(["base", False, False])) 
+                    matrizCuadriculada[fila].append(Base(self.framePG, self.ruta, False, False)) 
                 elif (fila== 4 and columna == 9) or (fila== 5 and columna == 8): 
-                    matrizCuadriculada[fila].append(list(["sp", ["zombi1", "zombi2", "zombi3"]]))
+                    matrizCuadriculada[fila].append(SpawningPoint(self.framePG, self.ruta, 1))
                 else:
-                    matrizCuadriculada[fila].append(0)  #Casilla() vacía
-        return list(matrizCuadriculada)
+                    matrizCuadriculada[fila].append(Casilla(self.framePG, self.ruta))  #Casilla() vacía
+        return matrizCuadriculada
+        
 
-    def dibujarCasillaEstandar(self, fila, columna):
-        color = self.colorCuadros #azul
-        #imagen = pygame.image.load(os.path.join(self.ruta, "imagenes/baseZombie.png")).convert_alpha()
-        #imagen = pygame.transform.scale(imagen, (self.dimCuadros, self.dimCuadros))
-        cuadro= pygame.draw.rect(self.framePG,
-                        color,
-                        [(1 + self.dimCuadros) * columna + 1,
-                        (1 + self.dimCuadros) * fila + 1,
-                        self.dimCuadros,
-                        self.dimCuadros])
-
-        #self.framePG.blit(imagen, cuadro)
-        pygame.display.flip()
-
-    def dibujarCasillaBase(self, fila, columna):
-        color = (24, 22, 67) #self.imgBaseEnemiga
-        imagen = pygame.image.load(os.path.join(self.ruta, "imagenes/baseAlien.png")).convert_alpha()
-        imagen = pygame.transform.scale(imagen, (self.dimCuadros, self.dimCuadros))
-        cuadro= pygame.draw.rect(self.framePG,
-                        color,
-                        [(1 + self.dimCuadros) * columna + 1,
-                        (1 + self.dimCuadros) * fila + 1,
-                        self.dimCuadros,
-                        self.dimCuadros])
-
-        self.framePG.blit(imagen, cuadro)
-        pygame.display.flip()
-
-    def dibujarCasillaObs(self, fila, columna):
-        color = (24, 22, 67) #setear self.imgObst
-        imagen = pygame.image.load(os.path.join(self.ruta, "imagenes/obstaculo.png")).convert_alpha()
-        imagen = pygame.transform.scale(imagen, (self.dimCuadros, self.dimCuadros))
-        cuadro= pygame.draw.rect(self.framePG,
-                        color,
-                        [(1 + self.dimCuadros) * columna + 1,
-                        (1 + self.dimCuadros) * fila + 1,
-                        self.dimCuadros,
-                        self.dimCuadros])
-
-        self.framePG.blit(imagen, cuadro)
-        pygame.display.flip()
-
-    def dibujarCasillaSpPt(self, fila, columna):
-        color = (24, 22, 67) #setear self.imgSpPt
-        imagen = pygame.image.load(os.path.join(self.ruta, "imagenes/spwnPt.png")).convert_alpha()
-        imagen = pygame.transform.scale(imagen, (self.dimCuadros, self.dimCuadros))
-        cuadro= pygame.draw.rect(self.framePG,
-                        color,
-                        [(1 + self.dimCuadros) * columna + 1,
-                        (1 + self.dimCuadros) * fila + 1,
-                        self.dimCuadros,
-                        self.dimCuadros])
-
-        self.framePG.blit(imagen, cuadro)
-        pygame.display.flip()
-
-    def dibujarCasillas(self):
+    def dibujarTablero(self):
         for fila in range( len(self.matriz)):
             for columna in range (len(self.matriz[fila])):
-                if (self.matriz[fila][columna]) != 0:
-                    #self.dibujarCasillaObs(fila, columna)
-                    #self.dibujarCasillaSpPt(fila, columna)
-                    self.dibujarCasillaBase(fila, columna)
-                    #self.dibujarCasillaEstandar(fila, columna)
-                    
-                    #if self.matriz[fila][columna][0] == "sp":
-                        #self.dibujarCasillaSpPt(fila, columna)
-                    #elif self.matriz[fila][columna][0] == "obstaculo":
-                        #self.dibujarCasillaObs(fila, columna)
-                    #elif self.matriz[fila][columna][0] == "base":
-                        #self.dibujarCasillaBase(fila, columna)
-                else:
-                    self.dibujarCasillaEstandar(fila, columna)
+                objeto= self.matriz[fila][columna]
+                objeto.dibujarCasilla(fila, columna)
+
     def salir(self):
         pygame.quit()
         sys.exit()
         self.terminar = True
-
+        
+        
 
     def dibujarCampoBatalla(self):
         framePG =  pygame.display.set_mode(self.dimFrame)
@@ -127,7 +62,7 @@ class CampoBatalla(pygame.sprite.Sprite):
         posicion = pygame.mouse.get_pos()
         columna = posicion[0] // ( self.dimCuadros + 1) #width
         fila = posicion[1] // ( self.dimCuadros + 1) #altura
-        self.matriz[fila][columna] = 1 #Cambiarle el color a la casilla
+        #self.matriz[fila][columna] = 1 #Cambiarle el color a la casilla
         print("Posición ", posicion, "Coordenadas en nuestra cuadrícula: ", fila, columna)
         
     def manejarEventos(self):
@@ -140,7 +75,7 @@ class CampoBatalla(pygame.sprite.Sprite):
                         self.salir()
                 elif evento.type == pygame.MOUSEBUTTONDOWN:
                     self.getCasillaSeleccionada()
-            self.dibujarCasillas()
+            self.dibujarTablero()
             pygame.display.update()
     
 class Boton():   
@@ -202,6 +137,7 @@ class Vestibulo(pygame.sprite.Sprite):
         pygame.quit()
         sys.exit()
         self.terminar = True
+
     def getPersonajeSeleccionado(self):
         posicion = pygame.mouse.get_pos()#captura el lugar donde se da click
         if self.botonAndromeda.verificarPresionado():
@@ -279,9 +215,10 @@ class Inicio(pygame.sprite.Sprite):
         Vestibulo("Personaje", (1012, 600))
         
     def salir(self):
+        self.terminar = True
         pygame.quit()
         sys.exit()
-        self.terminar = True
+        
 
     def mantenerEscucha(self):
         while not self.terminar:
