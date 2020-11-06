@@ -41,12 +41,12 @@ class CampoBatalla(pygame.sprite.Sprite):
             for columna in range (len(self.matriz[fila])):
                 objeto= self.matriz[fila][columna]
                 objeto.dibujarCasilla(fila, columna)
+        pygame.display.update()
 
     def salir(self):
         pygame.quit()
         sys.exit()
         self.terminar = True
-        
         
 
     def dibujarCampoBatalla(self):
@@ -64,9 +64,25 @@ class CampoBatalla(pygame.sprite.Sprite):
         fila = posicion[1] // ( self.dimCuadros + 1) #altura
         #self.matriz[fila][columna] = 1 #Cambiarle el color a la casilla
         print("Posición ", posicion, "Coordenadas en nuestra cuadrícula: ", fila, columna)
+        return fila, columna
+
+        ###Personajeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+    def mover(self, x, y):
+        terminar= False;
+        elemActual = self.matriz[x][y]
+        self.matriz[x][y] = Casilla(self.framePG, self.ruta)
+
+        while not terminar:
+            for evento in pygame.event.get():
+                if evento.type == pygame.MOUSEBUTTONUP:
+                    nuevasCoord= self.getCasillaSeleccionada();
+                    self.matriz[nuevasCoord[0]][nuevasCoord[1]] = elemActual
+                    terminar = True;
         
+
     def manejarEventos(self):
         while not self.terminar:
+            self.dibujarTablero()
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     self.salir()
@@ -74,23 +90,25 @@ class CampoBatalla(pygame.sprite.Sprite):
                     if evento.key == pygame.K_ESCAPE:
                         self.salir()
                 elif evento.type == pygame.MOUSEBUTTONDOWN:
-                    self.getCasillaSeleccionada()
-            self.dibujarTablero()
+                    coordenadas = self.getCasillaSeleccionada()
+                    self.mover(coordenadas[0], coordenadas[1])
+            
             pygame.display.update()
     
 class Boton():   
-    def __init__(self,x,y,ancho,alto,texto,screen):
+    def __init__(self,x,y,ancho,alto,texto, color, screen):
         self.x = x
         self.y = y
         self.ancho = ancho
         self.alto = alto
         self.textoBoton = texto
+        self.color = color
         self.rectangulo = pygame.Rect(x,y,ancho,alto)
         self.screen = screen
         self.fuente = pygame.font.SysFont("Arial",25)
         
     def dibujarBoton(self):
-        pygame.draw.rect(self.screen,(30, 139, 176),self.rectangulo,0)#variable de la pantalla, (colores RGB), rectangulo, borde
+        pygame.draw.rect(self.screen, self.color, self.rectangulo, 0)#variable de la pantalla, (colores RGB, 30, 139, 176), rectangulo, borde
         texto = self.fuente.render(self.textoBoton,True,((random.randrange(0, 100), random.randrange(0, 100), random.randrange(0, 100))))
         self.screen.blit(texto, (self.x+((self.ancho-texto.get_width())/2),self.y+(self.alto-texto.get_height())/2))#centra el texto en el boton
         
@@ -99,35 +117,86 @@ class Boton():
             return True
         else:
             return False
-        
+
+    def getTxt(self):
+        return self.textoBoton
+
+    def cambiarColorBtn(self, nuevoColor):
+        self.color = nuevoColor
+
+
+class Arbitro():
+    pass
+
 class Vestibulo(pygame.sprite.Sprite):
     def __init__(self, titulo, dimensiones):
         pygame.sprite.Sprite.__init__(self) #herencia  
         #self.colorFondo = colorFondo
         self.framePG =  pygame.display.set_mode(dimensiones)
         self.ruta = os.path.dirname(__file__)#importante!! captura la ruta de este archivo sin importar la computadora
+        self.imagen = pygame.image.load(os.path.join(self.ruta, "imagenes/bgVestibulo.jpg"))
+        self.fondo = pygame.transform.scale(self.imagen, (dimensiones[0], dimensiones[1]))
         self.alien1 = Alien("Andrómeda",self.ruta,"imagenes/alien1.png")
         self.alien2 = Alien("Osa Mayor",self.ruta,"imagenes/alien2.png")
         self.alien3 = Alien("Orión",self.ruta,"imagenes/alien3.png")
-        self.botonAndromeda = Boton(112, 407,120,50,"Seleccionar",self.framePG)
-        self.botonOsaMayor = Boton(444, 407,120,50,"Seleccionar",self.framePG)
-        self.botonOrion = Boton(760, 407,120,50,"Seleccionar",self.framePG)
         self.posX  =100
-        self.posY = 50
+        self.posY = 290
+        self.rojo = (220, 0, 0)
+        self.verde = (0, 220, 0)
         pygame.display.set_caption(titulo)
         self.terminar = False
+        self.btnsAndromeda = self.crearBotonesAndromeda()
+        self.btnsOrion = self.crearBotonesOrion()
+        self.btnsOsaMayor = self.crearBotonesOsaMayor()
         self.mantenerEscucha()
-        self.alienSeleccionado;#atributo para el alien seleccionado
-    def setAlienSeleccionado(self,alien):
-        self.alienSeleccionado = alien;
-        
-    def getAlienSeleccionado(self):
-        return self.alienSeleccionado;
-    
+
+    """
+    def crearBotones(self):
+        botones = [];
+        x = 100
+        x_aux = x;
+        contador = 0;
+        for i in range(3):
+            botones.append([])
+            if i != 0:
+                x += 320;  
+                x_aux = x;
+            for j in range(3):
+                if contador==j and contador==i: 
+                    color = self.rojo
+                    contador+=1;
+                else: 
+                    color = self.verde
+                botones[i].append(Boton(x_aux, 200,40,50, str(j+1), color, self.framePG))
+                x_aux += 40;
+        return botones;       
+    """
+    def crearBotonesAndromeda(self):
+        botones = []
+        botones.append(Boton(100, 200,40,50, "1", self.verde, self.framePG))
+        botones.append(Boton(140, 200,40,50, "2", self.rojo, self.framePG))
+        botones.append(Boton(180, 200,40,50, "3", self.rojo, self.framePG))
+        return botones
+
+    def crearBotonesOsaMayor(self):
+        botones = []
+        botones.append(Boton(420, 200,40,50, "1", self.rojo, self.framePG))
+        botones.append(Boton(460, 200,40,50, "2", self.verde, self.framePG))
+        botones.append(Boton(500, 200,40,50, "3", self.rojo, self.framePG))
+        return botones
+
+    def crearBotonesOrion(self):
+        botones = []
+        botones.append(Boton(740, 200,40,50, "1", self.rojo, self.framePG))
+        botones.append(Boton(780, 200,40,50, "2", self.rojo, self.framePG))
+        botones.append(Boton(820, 200,40,50, "3", self.verde, self.framePG))
+        return botones
+
     def insertarImgs(self):
+        self.framePG.blit(self.fondo, [0, 0])
         self.framePG.blit(self.alien1.getImagen(), (self.posX, self.posY))
-        self.framePG.blit(self.alien2.getImagen(), (self.posX+300, self.posY+100))
-        self.framePG.blit(self.alien3.getImagen(), (self.posX+600, self.posY+100))
+        self.framePG.blit(self.alien2.getImagen(), (self.posX+280, 300))
+        self.framePG.blit(self.alien3.getImagen(), (self.posX+600, 260))
 
     def jugar(self):
         self.terminar = True
@@ -138,20 +207,23 @@ class Vestibulo(pygame.sprite.Sprite):
         sys.exit()
         self.terminar = True
 
-    def getPersonajeSeleccionado(self):
+    def getPersonajeSeleccionado(self, lista):
+        numElegido = ""
         posicion = pygame.mouse.get_pos()#captura el lugar donde se da click
-        if self.botonAndromeda.verificarPresionado():
-            self.mostrarHabilidades(self.alien1)
-            self.setAlienSeleccionado(self.alien1);#asigna el personaje seleccionado
-        elif self.botonOsaMayor.verificarPresionado():
-            self.mostrarHabilidades(self.alien2)
-            self.setAlienSeleccionado(self.alien2);
-        elif self.botonOrion.verificarPresionado():
-            self.mostrarHabilidades(self.alien3)
-            self.setAlienSeleccionado(self.alien3);
-        else:
-            print(posicion)
-            
+        for i in range(len(lista)):
+            if lista[i].verificarPresionado():
+                lista[i].cambiarColorBtn(self.verde)
+                numElegido = lista[i].getTxt()
+            else: 
+                lista[i].cambiarColorBtn(self.rojo)
+        return numElegido
+                    
+    def getSeleccionados(self):
+         andromeda = self.getPersonajeSeleccionado(self.btnsAndromeda)
+         osaMayor = self.getPersonajeSeleccionado(self.btnsOsaMayor)
+         orion = self.getPersonajeSeleccionado(self.btnsOrion)
+         return [andromeda, osaMayor, orion]
+
     def mostrarHabilidades(self,palien):
         texto = palien.obtenerHabilidades()
 ##        fuente = pygame.font.Font(None,30)
@@ -160,9 +232,10 @@ class Vestibulo(pygame.sprite.Sprite):
         print(texto)
         
     def dibujarBotones(self):
-        self.botonAndromeda.dibujarBoton()
-        self.botonOsaMayor.dibujarBoton()
-        self.botonOrion.dibujarBoton()
+        matrizBotones= [self.btnsAndromeda, self.btnsOsaMayor, self.btnsOrion]
+        for i in range(len(matrizBotones)):
+            for j in range(len(matrizBotones[i])):
+                matrizBotones[i][j].dibujarBoton()
         
     def mantenerEscucha(self):#keep listening, esperando eventos
         while not self.terminar:
@@ -172,12 +245,11 @@ class Vestibulo(pygame.sprite.Sprite):
                 elif eventos.type == pygame.KEYDOWN:
                     self.jugar()#metodo de jugar
                 elif eventos.type == pygame.MOUSEBUTTONDOWN:
-                    self.getPersonajeSeleccionado()
+                    self.getSeleccionados()
             #framePG.blit(self.imgTitulo,(100,100))
             self.insertarImgs()
             self.dibujarBotones()
             pygame.display.update()         
-
 
 
 class Inicio(pygame.sprite.Sprite):
@@ -186,20 +258,23 @@ class Inicio(pygame.sprite.Sprite):
         #self.colorFondo = colorFondo
         pygame.init() 
         self.ruta = os.path.dirname(__file__)
+        self.dimensiones = dimensiones
         self.imgZombie = pygame.image.load(os.path.join(self.ruta, "imagenes/titulo.png"))
         self.imgGalaxy = pygame.image.load(os.path.join(self.ruta, "imagenes/titulo2.png"))
+        self.imagen = pygame.image.load(os.path.join(self.ruta, "imagenes/bgInicio.jpg"))
+        self.fondo = pygame.transform.scale(self.imagen, (self.dimensiones[0], self.dimensiones[1]))
         self.posX  =100
         self.posY = 50
         self.framePG =  pygame.display.set_mode(dimensiones)
         pygame.display.set_caption(titulo)
         self.color = (random.randrange(1, 255), random.randrange(1, 255), random.randrange(1, 255))
-        self.dimensiones = dimensiones
         self.font = pygame.font.Font ('freesansbold.ttf', 32)
         self.terminar = False
         self.mantenerEscucha()
 
     def getDimensiones(self):
         return self.dimensiones
+
     def insertarTxt(self):
         self.texto= self.font.render("Presione enter para comenzar", True, (self.color), (0,0,0))
         textRect = self.texto.get_rect()  
@@ -207,6 +282,7 @@ class Inicio(pygame.sprite.Sprite):
         self.framePG.blit(self.texto, textRect) 
 
     def insertarImgs(self):
+        self.framePG.blit(self.fondo, [0, 0])
         self.framePG.blit(self.imgZombie, (self.posX, self.posY))
         self.framePG.blit(self.imgGalaxy, (self.posX+200, self.posY+100))
 
@@ -219,7 +295,6 @@ class Inicio(pygame.sprite.Sprite):
         pygame.quit()
         sys.exit()
         
-
     def mantenerEscucha(self):
         while not self.terminar:
             for eventos in pygame.event.get():
@@ -232,6 +307,7 @@ class Inicio(pygame.sprite.Sprite):
             self.insertarImgs()
             self.insertarTxt()
             pygame.display.update()
+
 
 class Main():
     if __name__ == "__main__":

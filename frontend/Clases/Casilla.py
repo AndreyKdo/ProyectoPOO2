@@ -15,7 +15,7 @@ class Casilla:
         #self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
 
     def dibujarCasilla(self, fila, columna):
-        color = (24, 22, 67) 
+        color = (28, 3, 107) 
         imagen = pygame.image.load(os.path.join(self.ruta, self.imagen)).convert_alpha()
         imagen = pygame.transform.scale(imagen, (self.dimCuadros, self.dimCuadros))
         cuadro = pygame.draw.rect(self.framePG,
@@ -24,6 +24,7 @@ class Casilla:
                         (1 + self.dimCuadros) * fila + 1,
                         self.dimCuadros,
                         self.dimCuadros])
+                        
         if self.tipo != "estandar":
             self.framePG.blit(imagen, cuadro)
         pygame.display.flip()     
