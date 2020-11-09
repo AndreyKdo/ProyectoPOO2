@@ -106,14 +106,15 @@ class Boton():
         self.rectangulo = pygame.Rect(x,y,ancho,alto)
         self.screen = screen
         self.fuente = pygame.font.SysFont("Arial",25)
+        self.mousePos = pygame.mouse.get_pos()
         
     def dibujarBoton(self):
         pygame.draw.rect(self.screen, self.color, self.rectangulo, 0)#variable de la pantalla, (colores RGB, 30, 139, 176), rectangulo, borde
         texto = self.fuente.render(self.textoBoton,True,((random.randrange(0, 100), random.randrange(0, 100), random.randrange(0, 100))))
         self.screen.blit(texto, (self.x+((self.ancho-texto.get_width())/2),self.y+(self.alto-texto.get_height())/2))#centra el texto en el boton
         
-    def verificarPresionado(self):
-        if self.rectangulo.collidepoint(pygame.mouse.get_pos()):
+    def verificarPresionado(self, posicion):
+        if self.rectangulo.collidepoint(posicion):
             return True
         else:
             return False
@@ -139,10 +140,12 @@ class Vestibulo(pygame.sprite.Sprite):
         self.alien1 = Alien("Andrómeda",self.ruta,"imagenes/alien1.png")
         self.alien2 = Alien("Osa Mayor",self.ruta,"imagenes/alien2.png")
         self.alien3 = Alien("Orión",self.ruta,"imagenes/alien3.png")
+        self.elegidos = []
         self.posX  =100
         self.posY = 290
         self.rojo = (220, 0, 0)
         self.verde = (0, 220, 0)
+        self.gris = (155, 155, 155)
         pygame.display.set_caption(titulo)
         self.terminar = False
         self.btnsAndromeda = self.crearBotonesAndromeda()
@@ -171,25 +174,26 @@ class Vestibulo(pygame.sprite.Sprite):
                 x_aux += 40;
         return botones;       
     """
+    
     def crearBotonesAndromeda(self):
         botones = []
-        botones.append(Boton(100, 200,40,50, "1", self.verde, self.framePG))
-        botones.append(Boton(140, 200,40,50, "2", self.rojo, self.framePG))
-        botones.append(Boton(180, 200,40,50, "3", self.rojo, self.framePG))
+        botones.append(Boton(100, 200,40,50, "1", self.gris, self.framePG))
+        botones.append(Boton(140, 200,40,50, "2", self.gris, self.framePG))
+        botones.append(Boton(180, 200,40,50, "3", self.gris, self.framePG))
         return botones
 
     def crearBotonesOsaMayor(self):
         botones = []
-        botones.append(Boton(420, 200,40,50, "1", self.rojo, self.framePG))
-        botones.append(Boton(460, 200,40,50, "2", self.verde, self.framePG))
-        botones.append(Boton(500, 200,40,50, "3", self.rojo, self.framePG))
+        botones.append(Boton(420, 200,40,50, "1", self.gris, self.framePG))
+        botones.append(Boton(460, 200,40,50, "2", self.gris, self.framePG))
+        botones.append(Boton(500, 200,40,50, "3", self.gris, self.framePG))
         return botones
 
     def crearBotonesOrion(self):
         botones = []
-        botones.append(Boton(740, 200,40,50, "1", self.rojo, self.framePG))
-        botones.append(Boton(780, 200,40,50, "2", self.rojo, self.framePG))
-        botones.append(Boton(820, 200,40,50, "3", self.verde, self.framePG))
+        botones.append(Boton(740, 200,40,50, "1", self.gris, self.framePG))
+        botones.append(Boton(780, 200,40,50, "2", self.gris, self.framePG))
+        botones.append(Boton(820, 200,40,50, "3", self.gris, self.framePG))
         return botones
 
     def insertarImgs(self):
@@ -200,29 +204,28 @@ class Vestibulo(pygame.sprite.Sprite):
 
     def jugar(self):
         self.terminar = True
-        campoBatalla= CampoBatalla("Galaxia Zombi", 100, (1012, 600), (24, 22, 67), (88, 40, 165));
+        campoBatalla= CampoBatalla("Galaxia Zombi", 100, (1300, 600), (24, 22, 67), (88, 40, 165));
        
     def salir(self):
         pygame.quit()
         sys.exit()
         self.terminar = True
 
-    def getPersonajeSeleccionado(self, lista):
+    def getPersonajeSeleccionado(self, listaBotones):
         numElegido = ""
         posicion = pygame.mouse.get_pos()#captura el lugar donde se da click
-        for i in range(len(lista)):
-            if lista[i].verificarPresionado():
-                lista[i].cambiarColorBtn(self.verde)
-                numElegido = lista[i].getTxt()
-            else: 
-                lista[i].cambiarColorBtn(self.rojo)
+        for i in range(len(listaBotones)):
+            if listaBotones[i].verificarPresionado(posicion):
+                if listaBotones[i].getTxt() not in self.elegidos:
+                    listaBotones[i].cambiarColorBtn(self.verde)
+                    self.elegidos.append(listaBotones[i].getTxt())
         return numElegido
                     
     def getSeleccionados(self):
-         andromeda = self.getPersonajeSeleccionado(self.btnsAndromeda)
-         osaMayor = self.getPersonajeSeleccionado(self.btnsOsaMayor)
-         orion = self.getPersonajeSeleccionado(self.btnsOrion)
-         return [andromeda, osaMayor, orion]
+        botones = [self.btnsAndromeda, self.btnsOsaMayor, self.btnsOrion]
+        for i in range(len(botones)):
+            self.getPersonajeSeleccionado(botones[i])
+        return print(self.elegidos)
 
     def mostrarHabilidades(self,palien):
         texto = palien.obtenerHabilidades()
