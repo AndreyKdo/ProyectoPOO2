@@ -12,6 +12,7 @@ class Personaje():
     ataque=2
     rangoAtaque = 1
     vulnerable=False
+    #enTurno = False #para verificar que esté en turno
     def __init__(self,listaHabilidades,acciones,casilla):
         self.ubicacion = casilla #es un tipo de objeto casilla
         self.accionesTurno = acciones
@@ -20,8 +21,8 @@ class Personaje():
         return self.ubicacion
     def setUbicacion(self,casilla):
         self.ubicacion = casilla
-    def mover(self):#valida hacia donde mover, puede ser distinto en zombi y en alien
-        self.accionesTurno -= 1
+    """def mover(self):#valida hacia donde mover, puede ser distinto en zombi y en alien
+        self.accionesTurno -= 1"""
     def getVidaMax(self):
         return vidaMaxima
     def avanzarNivel(self,item):
@@ -54,8 +55,15 @@ class Personaje():
             return True
         else:
             return False
-    def pasarTurno(self):
-        pass #por hacer
+    """def pasarTurno(self):
+        self.enTurno = False
+    def setEnTurno(self):
+        if self.enTurno:
+            self.enTurno = False
+        else:
+            self.enTurno = True
+    def getEnTurno(self):
+        return self.enTurno"""
     def sumarRango(self,sumador):
         self.rangoAtaque+=sumador
 """

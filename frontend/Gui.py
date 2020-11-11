@@ -4,6 +4,37 @@ import pygame
 from Clases.Casilla import *
 from Clases.Personaje import Alien
 
+class Boton():   
+    def __init__(self,x,y,ancho,alto,texto, color, screen):
+        self.x = x
+        self.y = y
+        self.ancho = ancho
+        self.alto = alto
+        self.textoBoton = texto
+        self.color = color
+        self.rectangulo = pygame.Rect(x,y,ancho,alto)
+        self.screen = screen
+        self.fuente = pygame.font.SysFont("Arial",25)
+        self.mousePos = pygame.mouse.get_pos()
+        
+        
+    def dibujarBoton(self):
+        pygame.draw.rect(self.screen, self.color, self.rectangulo, 0)#variable de la pantalla, (colores RGB, 30, 139, 176), rectangulo, borde
+        texto = self.fuente.render(self.textoBoton,True,((random.randrange(0, 100), random.randrange(0, 100), random.randrange(0, 100))))
+        self.screen.blit(texto, (self.x+((self.ancho-texto.get_width())/2),self.y+(self.alto-texto.get_height())/2))#centra el texto en el boton
+        
+    def verificarPresionado(self, posicion):
+        if self.rectangulo.collidepoint(posicion):
+            return True
+        else:
+            return False
+
+    def getTxt(self):
+        return self.textoBoton
+
+    def cambiarColorBtn(self, nuevoColor):
+        self.color = nuevoColor
+        
 class CampoBatalla(pygame.sprite.Sprite):
     def __init__(self, titulo, dimCuadros, dimFrame, colorCuadros, colorLineas):
         pygame.sprite.Sprite.__init__(self) #herencia
@@ -15,11 +46,12 @@ class CampoBatalla(pygame.sprite.Sprite):
         self.ruta = os.path.dirname(__file__)
         self.framePG = self.dibujarCampoBatalla()
         self.matriz = self.generarMatriz()
-        
+        self.btnCurar = Boton(1153, 46,40,50, "Curar",(155, 155, 155), self.framePG)#self.crearBotones()
         #self.casilla = Casilla(self.framePG, self.matriz, "", self.dimCuadros)
         self.terminar =False
         self.manejarEventos()
-
+    def llamarCurar(self):
+        
     def generarMatriz(self):      
         matrizCuadriculada = []
         for fila in range(6):
@@ -57,7 +89,8 @@ class CampoBatalla(pygame.sprite.Sprite):
         #pygame.display.flip()
         pygame.display.update() 
         return framePG
-
+    
+    
     def getCasillaSeleccionada(self):
         posicion = pygame.mouse.get_pos()
         columna = posicion[0] // ( self.dimCuadros + 1) #width
@@ -68,21 +101,20 @@ class CampoBatalla(pygame.sprite.Sprite):
 
         ###Personajeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
     def mover(self, x, y):
-        terminar= False;
+        terminar= False
         elemActual = self.matriz[x][y]
         self.matriz[x][y] = Casilla(self.framePG, self.ruta)
 
         while not terminar:
             for evento in pygame.event.get():
                 if evento.type == pygame.MOUSEBUTTONUP:
-                    nuevasCoord= self.getCasillaSeleccionada();
+                    nuevasCoord= self.getCasillaSeleccionada()
                     self.matriz[nuevasCoord[0]][nuevasCoord[1]] = elemActual
-                    terminar = True;
-        
-
+                    terminar = True
     def manejarEventos(self):
         while not self.terminar:
             self.dibujarTablero()
+            self.btnCurar.dibujarBoton()
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     self.salir()
@@ -91,43 +123,38 @@ class CampoBatalla(pygame.sprite.Sprite):
                         self.salir()
                 elif evento.type == pygame.MOUSEBUTTONDOWN:
                     coordenadas = self.getCasillaSeleccionada()
-                    self.mover(coordenadas[0], coordenadas[1])
-            
+                    if self.btnCurar.verificarPresionado():
+                        
+                    try:
+                        self.mover(coordenadas[0], coordenadas[1])
+                    except IndexError:
+                        pass
             pygame.display.update()
-    
-class Boton():   
-    def __init__(self,x,y,ancho,alto,texto, color, screen):
-        self.x = x
-        self.y = y
-        self.ancho = ancho
-        self.alto = alto
-        self.textoBoton = texto
-        self.color = color
-        self.rectangulo = pygame.Rect(x,y,ancho,alto)
-        self.screen = screen
-        self.fuente = pygame.font.SysFont("Arial",25)
-        self.mousePos = pygame.mouse.get_pos()
-        
-    def dibujarBoton(self):
-        pygame.draw.rect(self.screen, self.color, self.rectangulo, 0)#variable de la pantalla, (colores RGB, 30, 139, 176), rectangulo, borde
-        texto = self.fuente.render(self.textoBoton,True,((random.randrange(0, 100), random.randrange(0, 100), random.randrange(0, 100))))
-        self.screen.blit(texto, (self.x+((self.ancho-texto.get_width())/2),self.y+(self.alto-texto.get_height())/2))#centra el texto en el boton
-        
-    def verificarPresionado(self, posicion):
-        if self.rectangulo.collidepoint(posicion):
-            return True
-        else:
-            return False
-
-    def getTxt(self):
-        return self.textoBoton
-
-    def cambiarColorBtn(self, nuevoColor):
-        self.color = nuevoColor
-
 
 class Arbitro():
-    pass
+    def __init__(self,listaJugadores):
+        self.listaJugadores = listaJugadores
+        self.enTurno = listaJugadores[0]#asignar el turno al primer jugador
+        self.contadorTurnos = 0
+        self.ubicacionEnlista = 0
+    def getJugador1(self):
+        return self.jugador1
+    def getJugador2(self):
+        return self.jugador2
+    def getJugador3(self):
+        return self.jugador3
+    def sumarTurno(self):
+        self.contadorTurnos+=1
+    def asignarTurno(self):
+        if self.ubicacionEnlista == 2:
+            self.ubicacionEnlista = 0
+        else:
+            self.ubicacionEnlista += 1
+        self.enTurno = listaJugadores[ubicacionEnlista]
+    def restarAcciones(self):
+        self.enTurno.sumarTurnos(-1)
+        
+            
 
 class Vestibulo(pygame.sprite.Sprite):
     def __init__(self, titulo, dimensiones):
