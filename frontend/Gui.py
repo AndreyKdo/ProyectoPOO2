@@ -4,19 +4,20 @@ import pygame
 from Clases.Casilla import *
 from Clases.Personaje import Alien
 
+
 class Boton():   
-    def __init__(self,x,y,ancho,alto,texto, color, screen):
+    def __init__(self,x,y,ancho,alto,texto, identificador,  color, screen):
         self.x = x
         self.y = y
         self.ancho = ancho
         self.alto = alto
         self.textoBoton = texto
+        self.id = identificador
         self.color = color
         self.rectangulo = pygame.Rect(x,y,ancho,alto)
         self.screen = screen
         self.fuente = pygame.font.SysFont("Arial",25)
         self.mousePos = pygame.mouse.get_pos()
-        
         
     def dibujarBoton(self):
         pygame.draw.rect(self.screen, self.color, self.rectangulo, 0)#variable de la pantalla, (colores RGB, 30, 139, 176), rectangulo, borde
@@ -31,26 +32,58 @@ class Boton():
 
     def getTxt(self):
         return self.textoBoton
-
+    
+    def getID(self):
+        return self.id
+    def getColor(self):
+        return self.color
     def cambiarColorBtn(self, nuevoColor):
         self.color = nuevoColor
         
+class Arbitro():
+    def __init__(self,listaJugadores):
+        self.listaJugadores = listaJugadores
+        self.enTurno = listaJugadores[0]#asigna el turno al primer jugador autom.
+        self.contadorTurnos = 0
+        self.ubicacionEnlista = 0
+    def getJugador1(self):
+        return self.jugador1
+    def getJugador2(self):
+        return self.jugador2
+    def getJugador3(self):
+        return self.jugador3
+    def sumarTurno(self):
+        self.contadorTurnos+=1
+    def asignarTurno(self):
+        print("Jugador turno Anterior:",self.enTurno.getNombre())
+        if self.ubicacionEnlista == 2:
+            self.ubicacionEnlista = 0
+        else:
+            self.ubicacionEnlista += 1
+        self.enTurno = self.listaJugadores[self.ubicacionEnlista]
+        print("Jugador turno Actual:",self.enTurno.getNombre())
+    def restarAcciones(self):
+        self.enTurno.sumarTurnos(-1)
+        
 class CampoBatalla(pygame.sprite.Sprite):
-    def __init__(self, titulo, dimCuadros, dimFrame, colorCuadros, colorLineas):
+    def __init__(self, titulo, dimCuadros, dimFrame, colorCuadros, colorLineas,Arbitro):
         pygame.sprite.Sprite.__init__(self) #herencia
         self.titulo = titulo
         self.dimCuadros = int(dimCuadros) #100
         self.dimFrame = dimFrame; #(1012, 600);
+        self.Arbitro = Arbitro#atributo del arbitro del juego
         self.colorCuadros = colorCuadros; #azul = (24, 22, 67);
         self.colorLineas = colorLineas; #morado = (88, 40, 165)
         self.ruta = os.path.dirname(__file__)
         self.framePG = self.dibujarCampoBatalla()
         self.matriz = self.generarMatriz()
-        self.btnCurar = Boton(1153, 46,40,50, "Curar",(155, 155, 155), self.framePG)#self.crearBotones()
+        self.btnCurar = Boton(1153, 46,40,50, "Curar","btncurar",(155, 155, 155), self.framePG)#self.crearBotones()
         #self.casilla = Casilla(self.framePG, self.matriz, "", self.dimCuadros)
         self.terminar =False
         self.manejarEventos()
-    def llamarCurar(self):
+        
+        
+    #def llamarCurar(self):
         
     def generarMatriz(self):      
         matrizCuadriculada = []
@@ -80,7 +113,6 @@ class CampoBatalla(pygame.sprite.Sprite):
         sys.exit()
         self.terminar = True
         
-
     def dibujarCampoBatalla(self):
         framePG =  pygame.display.set_mode(self.dimFrame)
         framePG.fill(self.colorLineas)
@@ -92,6 +124,7 @@ class CampoBatalla(pygame.sprite.Sprite):
     
     
     def getCasillaSeleccionada(self):
+        self.Arbitro.asignarTurno()
         posicion = pygame.mouse.get_pos()
         columna = posicion[0] // ( self.dimCuadros + 1) #width
         fila = posicion[1] // ( self.dimCuadros + 1) #altura
@@ -123,37 +156,13 @@ class CampoBatalla(pygame.sprite.Sprite):
                         self.salir()
                 elif evento.type == pygame.MOUSEBUTTONDOWN:
                     coordenadas = self.getCasillaSeleccionada()
-                    if self.btnCurar.verificarPresionado():
-                        
+                    if self.btnCurar.verificarPresionado(pygame.mouse.get_pos()):
+                        print("curar")
                     try:
                         self.mover(coordenadas[0], coordenadas[1])
                     except IndexError:
                         pass
-            pygame.display.update()
-
-class Arbitro():
-    def __init__(self,listaJugadores):
-        self.listaJugadores = listaJugadores
-        self.enTurno = listaJugadores[0]#asignar el turno al primer jugador
-        self.contadorTurnos = 0
-        self.ubicacionEnlista = 0
-    def getJugador1(self):
-        return self.jugador1
-    def getJugador2(self):
-        return self.jugador2
-    def getJugador3(self):
-        return self.jugador3
-    def sumarTurno(self):
-        self.contadorTurnos+=1
-    def asignarTurno(self):
-        if self.ubicacionEnlista == 2:
-            self.ubicacionEnlista = 0
-        else:
-            self.ubicacionEnlista += 1
-        self.enTurno = listaJugadores[ubicacionEnlista]
-    def restarAcciones(self):
-        self.enTurno.sumarTurnos(-1)
-        
+            pygame.display.update()      
             
 
 class Vestibulo(pygame.sprite.Sprite):
@@ -164,9 +173,10 @@ class Vestibulo(pygame.sprite.Sprite):
         self.ruta = os.path.dirname(__file__)#importante!! captura la ruta de este archivo sin importar la computadora
         self.imagen = pygame.image.load(os.path.join(self.ruta, "imagenes/bgVestibulo.jpg"))
         self.fondo = pygame.transform.scale(self.imagen, (dimensiones[0], dimensiones[1]))
-        self.alien1 = Alien("Andrómeda",self.ruta,"imagenes/alien1.png")
-        self.alien2 = Alien("Osa Mayor",self.ruta,"imagenes/alien2.png")
-        self.alien3 = Alien("Orión",self.ruta,"imagenes/alien3.png")
+        self.andromeda = Alien("Andrómeda",self.ruta,"imagenes/andromeda.png")
+        self.osaMayor = Alien("Osa Mayor",self.ruta,"imagenes/osaMayor.png")
+        self.orion = Alien("Orión",self.ruta,"imagenes/orion.png")
+        self.personajes= []
         self.elegidos = []
         self.posX  =100
         self.posY = 290
@@ -179,80 +189,74 @@ class Vestibulo(pygame.sprite.Sprite):
         self.btnsOrion = self.crearBotonesOrion()
         self.btnsOsaMayor = self.crearBotonesOsaMayor()
         self.mantenerEscucha()
-
-    """
-    def crearBotones(self):
-        botones = [];
-        x = 100
-        x_aux = x;
-        contador = 0;
-        for i in range(3):
-            botones.append([])
-            if i != 0:
-                x += 320;  
-                x_aux = x;
-            for j in range(3):
-                if contador==j and contador==i: 
-                    color = self.rojo
-                    contador+=1;
-                else: 
-                    color = self.verde
-                botones[i].append(Boton(x_aux, 200,40,50, str(j+1), color, self.framePG))
-                x_aux += 40;
-        return botones;       
-    """
     
     def crearBotonesAndromeda(self):
         botones = []
-        botones.append(Boton(100, 200,40,50, "1", self.gris, self.framePG))
-        botones.append(Boton(140, 200,40,50, "2", self.gris, self.framePG))
-        botones.append(Boton(180, 200,40,50, "3", self.gris, self.framePG))
+        botones.append(Boton(100, 200,40,50, "1", "andromeda", self.gris, self.framePG))
+        botones.append(Boton(140, 200,40,50, "2", "andromeda", self.gris, self.framePG))
+        botones.append(Boton(180, 200,40,50, "3", "andromeda", self.gris, self.framePG))
         return botones
 
     def crearBotonesOsaMayor(self):
         botones = []
-        botones.append(Boton(420, 200,40,50, "1", self.gris, self.framePG))
-        botones.append(Boton(460, 200,40,50, "2", self.gris, self.framePG))
-        botones.append(Boton(500, 200,40,50, "3", self.gris, self.framePG))
+        botones.append(Boton(420, 200,40,50, "1", "osaMayor", self.gris, self.framePG))
+        botones.append(Boton(460, 200,40,50, "2", "osaMayor", self.gris, self.framePG))
+        botones.append(Boton(500, 200,40,50, "3", "osaMayor", self.gris, self.framePG))
         return botones
 
     def crearBotonesOrion(self):
         botones = []
-        botones.append(Boton(740, 200,40,50, "1", self.gris, self.framePG))
-        botones.append(Boton(780, 200,40,50, "2", self.gris, self.framePG))
-        botones.append(Boton(820, 200,40,50, "3", self.gris, self.framePG))
+        botones.append(Boton(740, 200,40,50, "1", "orion", self.gris, self.framePG))
+        botones.append(Boton(780, 200,40,50, "2", "orion", self.gris, self.framePG))
+        botones.append(Boton(820, 200,40,50, "3", "orion", self.gris, self.framePG))
         return botones
 
     def insertarImgs(self):
         self.framePG.blit(self.fondo, [0, 0])
-        self.framePG.blit(self.alien1.getImagen(), (self.posX, self.posY))
-        self.framePG.blit(self.alien2.getImagen(), (self.posX+280, 300))
-        self.framePG.blit(self.alien3.getImagen(), (self.posX+600, 260))
+        self.framePG.blit(self.andromeda.getImagen(), (self.posX, self.posY))
+        self.framePG.blit(self.osaMayor.getImagen(), (self.posX+280, 300))
+        self.framePG.blit(self.orion.getImagen(), (self.posX+600, 260))
 
     def jugar(self):
         self.terminar = True
-        campoBatalla= CampoBatalla("Galaxia Zombi", 100, (1300, 600), (24, 22, 67), (88, 40, 165));
-       
+        campoBatalla= CampoBatalla("Galaxia Zombi", 100, (1300, 600), (24, 22, 67), (88, 40, 165),Arbitro(self.personajes))
+        
+        
     def salir(self):
         pygame.quit()
         sys.exit()
         self.terminar = True
 
+    def instanciarAliens(self):
+        self.elegidos.sort()
+        for i in range(len(self.elegidos)):
+            if self.elegidos[i][1] == "andromeda":
+                self.personajes.append(self.andromeda)
+            elif self.elegidos[i][1] == "osaMayor":
+                self.personajes.append(self.osaMayor)
+            else: #Si self.nombre == "orion":
+                self.personajes.append(self.orion)
+        self.jugar()
+        #Impresión de prueba
+        #for i in range(len(self.personajes)):
+         #  print(self.personajes[i].getNombre())
+
     def getPersonajeSeleccionado(self, listaBotones):
-        numElegido = ""
-        posicion = pygame.mouse.get_pos()#captura el lugar donde se da click
         for i in range(len(listaBotones)):
-            if listaBotones[i].verificarPresionado(posicion):
-                if listaBotones[i].getTxt() not in self.elegidos:
-                    listaBotones[i].cambiarColorBtn(self.verde)
-                    self.elegidos.append(listaBotones[i].getTxt())
-        return numElegido
+            if listaBotones[i].verificarPresionado(pygame.mouse.get_pos()):
+                if len(self.elegidos)>0:
+                    for j in range(len(self.elegidos)):#valida que el jugador según el número no tenga seleccionado un personaje
+                        if int(listaBotones[i].getTxt()) in self.elegidos[j]:
+                            return
+                listaBotones[i].cambiarColorBtn(self.verde)
+                self.elegidos.append((int(listaBotones[i].getTxt()), listaBotones[i].getID()))
                     
     def getSeleccionados(self):
         botones = [self.btnsAndromeda, self.btnsOsaMayor, self.btnsOrion]
         for i in range(len(botones)):
             self.getPersonajeSeleccionado(botones[i])
-        return print(self.elegidos)
+        if len(self.elegidos) == 3:
+            self.instanciarAliens()
 
     def mostrarHabilidades(self,palien):
         texto = palien.obtenerHabilidades()
@@ -273,9 +277,9 @@ class Vestibulo(pygame.sprite.Sprite):
                 if eventos.type == pygame.QUIT:
                     self.salir()
                 elif eventos.type == pygame.KEYDOWN:
-                    self.jugar()#metodo de jugar
+                    self.jugar()
                 elif eventos.type == pygame.MOUSEBUTTONDOWN:
-                    self.getSeleccionados()
+                    self.getSeleccionados()  
             #framePG.blit(self.imgTitulo,(100,100))
             self.insertarImgs()
             self.dibujarBotones()
