@@ -12,15 +12,19 @@ class Personaje():
     ataque=2
     rangoAtaque = 1
     vulnerable=False
+    ubicacionAnterior = ()
+    ubicacion = ()
     #enTurno = False #para verificar que esté en turno
-    def __init__(self,listaHabilidades,acciones,casilla):
-        self.ubicacion = casilla #es un tipo de objeto casilla
+    def __init__(self,listaHabilidades,acciones):
         self.accionesTurno = acciones
         self.habilidades = listaHabilidades#lista de objetos tipo Habilidad
+    def getUbicacionAnterior(self):
+        return self.ubicacionAnterior
     def getUbicacion(self):
         return self.ubicacion
-    def setUbicacion(self,casilla):
-        self.ubicacion = casilla
+    def setUbicacion(self,x,y):
+        self.ubicacionAnterior = self.ubicacion
+        self.ubicacion = (x,y)
     """def mover(self):#valida hacia donde mover, puede ser distinto en zombi y en alien
         self.accionesTurno -= 1"""
     def getVidaMax(self):
@@ -75,7 +79,7 @@ class Zombi(Personaje):
     veAlien=False
     escuchaRuido=False
     def __init__(self,item,habilidad):
-        super().__init__(habilidad,1,"baseZombi")#listaHabilidades, acciones por turno, baseZombi(es un objeto tipo Casilla)
+        super().__init__(habilidad,1)#listaHabilidades, acciones por turno, baseZombi(es un objeto tipo Casilla)
         self.item = item
     def soltarItem(self):
         if (self.morir()) and random() < 0.5:#https://www.iteramos.com/pregunta/24686/obtener-un-valor-booleano-al-azar-en-python
@@ -101,7 +105,14 @@ class Alien(Personaje):
     def __init__(self,pnombre,ruta,imagen):#,habilidades
         self.nombre=pnombre
         self.imgAlien = pygame.image.load(os.path.join(ruta, imagen))
-        super().__init__(self.definirHabilidades(),3,"baseAlien") #listaHabilidades, acciones por turno y baseAlien(es un objeto tipo Casilla)
+        super().__init__(self.definirHabilidades(),3) #listaHabilidades, acciones por turno y baseAlien(es un objeto tipo Casilla)
+    def setImagen(self,ruta,imagen,objetoPY=True):
+        #objetoPY es para indicar que se trata de una imagen tipo objeto de pygame
+        #si recibe false al atributo se asigna solo el string de la imagen
+        if objetoPY:
+            self.imgAlien = pygame.image.load(os.path.join(ruta, imagen))
+        else:
+            self.imgAlien = imagen
     def getNombre(self):
         return self.nombre
     def obtenerHabilidades(self):

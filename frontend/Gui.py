@@ -42,16 +42,36 @@ class Boton():
         
 class Arbitro():
     def __init__(self,listaJugadores):
+        self.ruta = os.path.dirname(__file__)
         self.listaJugadores = listaJugadores
         self.enTurno = listaJugadores[0]#asigna el turno al primer jugador autom.
         self.contadorTurnos = 0
         self.ubicacionEnlista = 0
+        self.asignarImgMinis()
+        self.asignarUbicacionInicial()
+    def asignarImgMinis(self):
+        for jugador in self.listaJugadores:
+            if jugador.getNombre() == "Andrómeda":
+                jugador.setImagen(self.ruta,"imagenes/miniAndromeda.png",False)#envía false para indicar que no es un tipo objeto de pygame
+            elif jugador.getNombre() == "Osa Mayor":
+                jugador.setImagen(self.ruta,"imagenes/miniOsaMayor.png",False)
+            else:
+                jugador.setImagen(self.ruta,"imagenes/miniOrion.png",False)
+        
+    def asignarUbicacionInicial(self):
+        self.listaJugadores[0].setUbicacion(4,1)
+        #print("ubicaciòn jugador 1:",self.listaJugadores[0].getUbicacion())
+        self.listaJugadores[1].setUbicacion(4,0)
+        #print("ubicaciòn jugador 2:",self.listaJugadores[1].getUbicacion())
+        self.listaJugadores[2].setUbicacion(5,1)
+        #print("ubicaciòn jugador 3:",self.listaJugadores[2].getUbicacion())
+        
     def getJugador1(self):
-        return self.jugador1
+        return self.listaJugadores[0]
     def getJugador2(self):
-        return self.jugador2
+        return self.listaJugadores[1]
     def getJugador3(self):
-        return self.jugador3
+        return self.listaJugadores[2]
     def sumarTurno(self):
         self.contadorTurnos+=1
     def asignarTurno(self):
@@ -86,7 +106,9 @@ class CampoBatalla(pygame.sprite.Sprite):
         #self.casilla = Casilla(self.framePG, self.matriz, "", self.dimCuadros)
         self.terminar =False
         self.manejarEventos()
-        
+        self.miniJugador1 = pygame.image.load(os.path.join(self.ruta, Arbitro.getJugador1().getImagen()))
+        self.miniJugador2 = pygame.image.load(os.path.join(self.ruta, Arbitro.getJugador2().getImagen()))
+        self.miniJugador3 = pygame.image.load(os.path.join(self.ruta, Arbitro.getJugador3().getImagen()))
       #self.Arbitro.asignarTurno()
     #def llamarCurar(self):
     #def setMiniAlien(self):
@@ -104,6 +126,11 @@ class CampoBatalla(pygame.sprite.Sprite):
                     matrizCuadriculada[fila].append(SpawningPoint(self.framePG, self.ruta, 1))
                 else:
                     matrizCuadriculada[fila].append(Casilla(self.framePG, self.ruta))  #Casilla() vacía
+                    if fila== 4 and columna == 1:
+                        matrizCuadriculada[fila][columna].setTipo("inicial")
+                        matrizCuadriculada[fila][columna].setImagen(self.Arbitro.getJugador1().getImagen())
+                    #elif fila==4 and columna == 0:
+                    #    matrizCuadriculada[fila][columna].setImagen("imagenes/miniAndromeda.png")
         return matrizCuadriculada
         
     def dibujarTablero(self):
@@ -126,7 +153,12 @@ class CampoBatalla(pygame.sprite.Sprite):
         pygame.display.flip()
         #pygame.display.update() 
         return framePG
-    
+    """
+    def insertarMinis(self):
+        self.framePG.blit(self.miniJugador1, (Arbitro.getJugador1().getUbicacion()[0], Arbitro.getJugador1().getUbicacion()[1]))
+        self.framePG.blit(self.miniJugador2, (Arbitro.getJugador2().getUbicacion()[0], Arbitro.getJugador2().getUbicacion()[1]))
+        self.framePG.blit(self.miniJugador3, (Arbitro.getJugador3().getUbicacion()[0], Arbitro.getJugador3().getUbicacion()[1]))
+    """    
     def getCasillaSeleccionada(self):
         posicion = pygame.mouse.get_pos()
         columna = posicion[0] // ( self.dimCuadros + 1) #width
@@ -137,6 +169,7 @@ class CampoBatalla(pygame.sprite.Sprite):
     
         ###Personajeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
     def mover(self, x, y):
+        print("MOVER:",x,y)#casilla seleccionada
         terminar= False
         elemActual = self.matriz[x][y]
         self.matriz[x][y] = Casilla(self.framePG, self.ruta)
@@ -146,8 +179,10 @@ class CampoBatalla(pygame.sprite.Sprite):
                 if evento.type == pygame.MOUSEBUTTONUP:
                     nuevasCoord= self.getCasillaSeleccionada()
                     self.matriz[nuevasCoord[0]][nuevasCoord[1]] = elemActual
-                    terminar = True
+                    #self.Arbitro.getJugadorEnTurno().setUbicacion()
                     self.Arbitro.getJugadorEnTurno().restarAcciones()
+                    terminar = True
+                                      
     def actualizarTextos(self):
         textoVida = self.fuente.render("Vida Disponible:" + str(self.Arbitro.getJugadorEnTurno().getVidaMaxima())+"/"+str(self.Arbitro.getJugadorEnTurno().getVidaActual()),True, (255, 255, 255))
         pygame.draw.rect(self.framePG, (255, 0, 0), [1016, 19, 400, 800], 0)#self.colorLineas
@@ -155,9 +190,10 @@ class CampoBatalla(pygame.sprite.Sprite):
         textoJugador = self.fuente.render("Turno del Jugador:" +str(self.Arbitro.getTurno()),True, (255, 255, 255))
         self.framePG.blit(textoVida, (1016, 19))
         self.framePG.blit(textoJugador, (1016, 50))
-        
+        #self.matriz[4][1].
     def manejarEventos(self):
         #frameActualiza = pygame.display.set_mode()
+        
         while not self.terminar:  
             #self.setMiniAlien()
             #self.framePG.blit(self.miniAlien,(1016, 19))

@@ -13,22 +13,27 @@ class Casilla:
         #image_path = os.path.join("data", "images")
         #self.image = pygame.image.load(os.path.join(image_path, filename)).convert_alpha()
         #self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
-
+    def setImagen(self,imagen):
+        self.imagen = imagen
+    def setTipo(self,tipo):
+        self.tipo = tipo
+    def getTipo(self):
+        return self.tipo
     def dibujarCasilla(self, fila, columna):
         color = (28, 3, 107) 
+        
         imagen = pygame.image.load(os.path.join(self.ruta, self.imagen)).convert_alpha()
-        imagen = pygame.transform.scale(imagen, (self.dimCuadros, self.dimCuadros))
+        if self.tipo!="inicial":
+            imagen = pygame.transform.scale(imagen, (self.dimCuadros, self.dimCuadros))
         cuadro = pygame.draw.rect(self.framePG,
                         color,
                         [(1 + self.dimCuadros) * columna + 1,
                         (1 + self.dimCuadros) * fila + 1,
                         self.dimCuadros,
-                        self.dimCuadros])
-                        
+                        self.dimCuadros])                 
         if self.tipo != "estandar":
             self.framePG.blit(imagen, cuadro)
         pygame.display.flip()     
-
     def getTipo(self):
         return self.tipo;   
    
