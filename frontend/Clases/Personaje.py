@@ -31,7 +31,9 @@ class Personaje():
             self.vida += exp - (self.vidaMaxima-self.vida)
         self.vidaMaxima += exp
         self.ataque += exp
-    def getVida(self):
+    def getVidaMaxima(self):
+        return self.vidaMaxima
+    def getVidaActual(self):
         return self.vida
     def restarVida(self,ataqueRecibo):
         if vulnerable:
@@ -123,11 +125,18 @@ class Alien(Personaje):
             listaHabilidades.append(RepeleAtaque("Elastipiel",2," Este alienígena es profesional en esquivar hasta el más mínimo embate. ¡Orión es una constelación genial para jugar quemados!"))
             listaHabilidades.append(Invisible("Traje de Invisibilidad",5," Él puede pasar frente tus narices sin que lo veas, sus ropas lo hacen ser imperceptible a todo ojo del universo conocido. ¡Quiero su traje para espiar a mi gato en la noche sin que me vea!"))
         return listaHabilidades
+    def restarAcciones(self):
+        self.accionesTurno-=1
+    def getAccionesDisponibles(self):
+        if self.accionesTurno==0:
+            self.accionesTurno = 3
+            return 0
+        else:
+            return self.accionesTurno
     def atacar(self):
         self.nivelRuido+=armaEquipada.hacerRuido()
         return super().atacar()
     def usarItem(self,item):
-        self.accionesTurno -= 1
         pass#por hacer
     def getInventario(self):
         return self.inventario
