@@ -139,8 +139,8 @@ class Alien(Personaje):
         return self.nivelRuido
     def setRuido(self,reductor):
         self.nivelRuido -= reductor
-    def setRuido(self,ruidoGenerado):
-        self.nivelRuido = ruidoGenerado
+    """def setRuido(self,ruidoGenerado):
+        self.nivelRuido = ruidoGenerado"""
     def getImagen(self):
         return self.imgAlien
 

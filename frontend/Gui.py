@@ -64,27 +64,32 @@ class Arbitro():
         print("Jugador turno Actual:",self.enTurno.getNombre())
     def restarAcciones(self):
         self.enTurno.sumarTurnos(-1)
-        
+    def getJugadorEnTurno(self):
+        return self.enTurno
+    def getTurno(self):
+        return self.ubicacionEnlista+1
 class CampoBatalla(pygame.sprite.Sprite):
     def __init__(self, titulo, dimCuadros, dimFrame, colorCuadros, colorLineas,Arbitro):
         pygame.sprite.Sprite.__init__(self) #herencia
+        self.Arbitro = Arbitro#atributo del arbitro del juego
         self.titulo = titulo
         self.dimCuadros = int(dimCuadros) #100
         self.dimFrame = dimFrame; #(1012, 600);
-        self.Arbitro = Arbitro#atributo del arbitro del juego
         self.colorCuadros = colorCuadros; #azul = (24, 22, 67);
         self.colorLineas = colorLineas; #morado = (88, 40, 165)
         self.ruta = os.path.dirname(__file__)
         self.framePG = self.dibujarCampoBatalla()
         self.matriz = self.generarMatriz()
         self.btnCurar = Boton(1153, 46,40,50, "Curar","btncurar",(155, 155, 155), self.framePG)#self.crearBotones()
+        self.fuente = pygame.font.Font(None, 30)
         #self.casilla = Casilla(self.framePG, self.matriz, "", self.dimCuadros)
         self.terminar =False
         self.manejarEventos()
         
-        
+      #self.Arbitro.asignarTurno()
     #def llamarCurar(self):
-        
+    #def setMiniAlien(self):
+    #    self.miniAlien = self.Arbitro.getJugadorEnTurno().getImagen()
     def generarMatriz(self):      
         matrizCuadriculada = []
         for fila in range(6):
@@ -100,7 +105,6 @@ class CampoBatalla(pygame.sprite.Sprite):
                     matrizCuadriculada[fila].append(Casilla(self.framePG, self.ruta))  #Casilla() vacía
         return matrizCuadriculada
         
-
     def dibujarTablero(self):
         for fila in range( len(self.matriz)):
             for columna in range (len(self.matriz[fila])):
@@ -118,13 +122,12 @@ class CampoBatalla(pygame.sprite.Sprite):
         framePG.fill(self.colorLineas)
         self.clock = pygame.time.Clock()
         pygame.display.set_caption(self.titulo)
-        #pygame.display.flip()
-        pygame.display.update() 
+        pygame.display.flip()
+        #pygame.display.update() 
         return framePG
     
     
     def getCasillaSeleccionada(self):
-        self.Arbitro.asignarTurno()
         posicion = pygame.mouse.get_pos()
         columna = posicion[0] // ( self.dimCuadros + 1) #width
         fila = posicion[1] // ( self.dimCuadros + 1) #altura
@@ -145,9 +148,12 @@ class CampoBatalla(pygame.sprite.Sprite):
                     self.matriz[nuevasCoord[0]][nuevasCoord[1]] = elemActual
                     terminar = True
     def manejarEventos(self):
-        while not self.terminar:
+        #frameActualiza = pygame.display.set_mode()
+        while not self.terminar:  
+            #self.setMiniAlien()
+            #self.framePG.blit(self.miniAlien,(1016, 19))
             self.dibujarTablero()
-            self.btnCurar.dibujarBoton()
+            #self.btnCurar.dibujarBoton()
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     self.salir()
@@ -156,12 +162,21 @@ class CampoBatalla(pygame.sprite.Sprite):
                         self.salir()
                 elif evento.type == pygame.MOUSEBUTTONDOWN:
                     coordenadas = self.getCasillaSeleccionada()
-                    if self.btnCurar.verificarPresionado(pygame.mouse.get_pos()):
-                        print("curar")
+                    self.Arbitro.asignarTurno()
+                    self.framePG.fill((0,0,255))
+                    #if self.btnCurar.verificarPresionado(pygame.mouse.get_pos()):
+                    #   print("curar")
                     try:
                         self.mover(coordenadas[0], coordenadas[1])
                     except IndexError:
                         pass
+            #self.framePG.fill((0,0,255))       
+            textoVida = self.fuente.render("Vida Disponible:" + str(self.Arbitro.getJugadorEnTurno().getVida()), True, (255, 255, 255))
+            textoJugador = self.fuente.render("Turno del Jugador:" +str(self.Arbitro.getTurno()),True, (255, 255, 255))
+
+            self.framePG.blit(textoVida, (1016, 19))
+            self.framePG.blit(textoJugador, (1016, 50))
+
             pygame.display.update()      
             
 
