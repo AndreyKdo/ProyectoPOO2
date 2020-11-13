@@ -9,10 +9,15 @@ class Casilla:
         self.framePG = framePG
         self.ruta = ruta
         self.dimCuadros = 100 #OJO que está alambrado
+        self.personaje = object
         # ---------------------
         #image_path = os.path.join("data", "images")
         #self.image = pygame.image.load(os.path.join(image_path, filename)).convert_alpha()
         #self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
+    def setPersonaje(self,personaje):
+        self.personaje = personaje
+    def getPersonaje(self):
+        return self.personaje
     def setImagen(self,imagen):
         self.imagen = imagen
     def setTipo(self,tipo):

@@ -11,6 +11,7 @@ class Personaje():
     vida=vidaMaxima
     ataque=2
     rangoAtaque = 1
+    rangoMovimiento = 1
     vulnerable=False
     ubicacionAnterior = ()
     ubicacion = ()
@@ -61,6 +62,10 @@ class Personaje():
             return True
         else:
             return False
+    def getRangoAtaque(self):
+        return self.rangoAtaque
+    def getRangoMovimiento(self):
+        return self.rangoMovimiento
     """def pasarTurno(self):
         self.enTurno = False
     def setEnTurno(self):

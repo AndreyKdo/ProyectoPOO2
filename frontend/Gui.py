@@ -101,18 +101,21 @@ class CampoBatalla(pygame.sprite.Sprite):
         self.ruta = os.path.dirname(__file__)
         self.framePG = self.dibujarCampoBatalla()
         self.matriz = self.generarMatriz()
-        self.btnCurar = Boton(1153, 46,40,50, "Curar","btncurar",(155, 155, 155), self.framePG)#self.crearBotones()
+        
         self.fuente = pygame.font.Font(None, 30)
         #self.casilla = Casilla(self.framePG, self.matriz, "", self.dimCuadros)
         self.terminar =False
-        self.manejarEventos()
         self.miniJugador1 = pygame.image.load(os.path.join(self.ruta, Arbitro.getJugador1().getImagen()))
         self.miniJugador2 = pygame.image.load(os.path.join(self.ruta, Arbitro.getJugador2().getImagen()))
         self.miniJugador3 = pygame.image.load(os.path.join(self.ruta, Arbitro.getJugador3().getImagen()))
+        #self.btnCurar = Boton(1080, 340,150,50, "Curar","btncurar",(155, 155, 155), self.framePG)
+        self.manejarEventos()
       #self.Arbitro.asignarTurno()
     #def llamarCurar(self):
     #def setMiniAlien(self):
     #    self.miniAlien = self.Arbitro.getJugadorEnTurno().getImagen()
+    def crearBotones(self):
+        self.btnCurar.dibujarBoton()
     def generarMatriz(self):      
         matrizCuadriculada = []
         for fila in range(6):
@@ -129,12 +132,15 @@ class CampoBatalla(pygame.sprite.Sprite):
                     if fila== 4 and columna == 1:
                         matrizCuadriculada[fila][columna].setTipo("casillaAlien")
                         matrizCuadriculada[fila][columna].setImagen(self.Arbitro.getJugador1().getImagen())
+                        matrizCuadriculada[fila][columna].setPersonaje(self.Arbitro.getJugador1())
                     elif fila== 4 and columna == 0:
                         matrizCuadriculada[fila][columna].setTipo("casillaAlien")
                         matrizCuadriculada[fila][columna].setImagen(self.Arbitro.getJugador2().getImagen())
+                        matrizCuadriculada[fila][columna].setPersonaje(self.Arbitro.getJugador2())
                     elif fila== 5 and columna == 1:
                         matrizCuadriculada[fila][columna].setTipo("casillaAlien")
                         matrizCuadriculada[fila][columna].setImagen(self.Arbitro.getJugador3().getImagen())
+                        matrizCuadriculada[fila][columna].setPersonaje(self.Arbitro.getJugador3())
                     else:
                         matrizCuadriculada[fila][columna].setTipo("estandar")
                     #elif fila==4 and columna == 0:
@@ -161,17 +167,29 @@ class CampoBatalla(pygame.sprite.Sprite):
         pygame.display.flip()
         #pygame.display.update() 
         return framePG
+    ###Personajeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
     def getCasillaSeleccionada(self):
         posicion = pygame.mouse.get_pos()
+        print("posicion seleccionada:",posicion)
         columna = posicion[0] // ( self.dimCuadros + 1) #width
         fila = posicion[1] // ( self.dimCuadros + 1) #altura
         return fila, columna
 
-    
-        ###Personajeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-    def mover(self, x, y):
-        
-        if self.matriz[x][y].getTipo() == "estandar":
+    def verificarCasilla(self,x,y,tipoVerificar):
+        if self.matriz[x][y].getTipo() == tipoVerificar:
+            return True
+        else:
+            return False
+    def verificarCercania(self,x,y,rangoMovimiento="mover"):
+        if rangoMovimiento == "mover":
+            rangoMovimiento = self.Arbitro.getJugadorEnTurno().getRangoMovimiento()
+        ubicacion = self.Arbitro.getJugadorEnTurno().getUbicacion()        
+        if (x == ubicacion[0]-rangoMovimiento or x == ubicacion[0]+rangoMovimiento or x == ubicacion[0]) and (y == ubicacion[1]-rangoMovimiento or y == ubicacion[1] or y == ubicacion[1]+rangoMovimiento):
+            return True 
+        else:
+            return False 
+    def mover(self, x, y):        
+        if self.verificarCasilla(x,y,"estandar") and self.verificarCercania(x,y):
             #guarda en una variable auxiliar la casilla con el personaje a mover
             campoAuxiliar = self.matriz[self.Arbitro.getJugadorEnTurno().getUbicacion()[0]][self.Arbitro.getJugadorEnTurno().getUbicacion()[1]]
             #asigna a la ubicación del jugador una casilla estándar
@@ -179,17 +197,29 @@ class CampoBatalla(pygame.sprite.Sprite):
             #asigna al campo seleccionado el auxiliar que almacena al personaje
             self.matriz[x][y] = campoAuxiliar
             self.Arbitro.getJugadorEnTurno().setUbicacion(x,y)#cambia la ubicación logicamente
-
             self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno
-                                         
+        else:
+            return False
+    def verificarAtacar(self,x,y):
+        ubicacion = self.Arbitro.getJugadorEnTurno().getUbicacion()
+        rangoAtaque = self.Arbitro.getJugadorEnTurno().getRangoAtaque()
+        if self.verificarCercania(x,y,rangoAtaque) and self.verificarCasilla(x,y,"casillaZombi"):
+            return True
+        else:
+            return False
+    def atacar(self,x,y):
+        if self.verificarAtacar(x,y):
+            pass
+        else:
+            return
     def actualizarAcciones(self):
         pygame.draw.rect(self.framePG, (255, 0, 0), [1016, 19, 400, 800], 0)#self.colorLineas
         textoJugador = self.fuente.render("Turno del Jugador:" +str(self.Arbitro.getTurno()),True, (255, 255, 255))
         textoVida = self.fuente.render("Vida Disponible:" + str(self.Arbitro.getJugadorEnTurno().getVidaMaxima())+"/"+str(self.Arbitro.getJugadorEnTurno().getVidaActual()),True, (255, 255, 255))
         self.framePG.blit(textoJugador, (1016, 50))
-        self.framePG.blit(textoVida, (1016, 19))
-        
-        
+        self.framePG.blit(textoVida, (1016, 19))      
+        #self.crearBotones()
+    
     def manejarEventos(self):      
         while not self.terminar:  
             #self.setMiniAlien()
@@ -202,13 +232,11 @@ class CampoBatalla(pygame.sprite.Sprite):
                 elif evento.type == pygame.KEYDOWN:
                     if evento.key == pygame.K_ESCAPE:
                         self.salir()
-                elif evento.type == pygame.MOUSEBUTTONDOWN:                    
-                    #self.framePG.fill()
-                    #if self.btnCurar.verificarPresionado(pygame.mouse.get_pos()):
-                    #   print("curar")
+                elif evento.type == pygame.MOUSEBUTTONDOWN:    
                     try:
                         coordenadas = self.getCasillaSeleccionada()
-                        self.mover(coordenadas[0], coordenadas[1])                        
+                        self.mover(coordenadas[0], coordenadas[1])
+                        self.atacar(coordenadas[0], coordenadas[1])                      
                     except IndexError:
                         pass #Error: debe seleccionar una ubicación de la matriz mostrada
             if self.Arbitro.getJugadorEnTurno().getAccionesDisponibles()==0:
