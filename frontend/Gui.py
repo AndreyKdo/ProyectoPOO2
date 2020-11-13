@@ -129,6 +129,14 @@ class CampoBatalla(pygame.sprite.Sprite):
                     if fila== 4 and columna == 1:
                         matrizCuadriculada[fila][columna].setTipo("casillaAlien")
                         matrizCuadriculada[fila][columna].setImagen(self.Arbitro.getJugador1().getImagen())
+                    elif fila== 4 and columna == 0:
+                        matrizCuadriculada[fila][columna].setTipo("casillaAlien")
+                        matrizCuadriculada[fila][columna].setImagen(self.Arbitro.getJugador2().getImagen())
+                    elif fila== 5 and columna == 1:
+                        matrizCuadriculada[fila][columna].setTipo("casillaAlien")
+                        matrizCuadriculada[fila][columna].setImagen(self.Arbitro.getJugador3().getImagen())
+                    else:
+                        matrizCuadriculada[fila][columna].setTipo("estandar")
                     #elif fila==4 and columna == 0:
                     #    matrizCuadriculada[fila][columna].setImagen("imagenes/miniAndromeda.png")
         return matrizCuadriculada
@@ -153,12 +161,6 @@ class CampoBatalla(pygame.sprite.Sprite):
         pygame.display.flip()
         #pygame.display.update() 
         return framePG
-    """
-    def insertarMinis(self):
-        self.framePG.blit(self.miniJugador1, (Arbitro.getJugador1().getUbicacion()[0], Arbitro.getJugador1().getUbicacion()[1]))
-        self.framePG.blit(self.miniJugador2, (Arbitro.getJugador2().getUbicacion()[0], Arbitro.getJugador2().getUbicacion()[1]))
-        self.framePG.blit(self.miniJugador3, (Arbitro.getJugador3().getUbicacion()[0], Arbitro.getJugador3().getUbicacion()[1]))
-    """    
     def getCasillaSeleccionada(self):
         posicion = pygame.mouse.get_pos()
         columna = posicion[0] // ( self.dimCuadros + 1) #width
@@ -170,21 +172,18 @@ class CampoBatalla(pygame.sprite.Sprite):
     
         ###Personajeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
     def mover(self, x, y):
-        print("MOVER:",x,y)#casilla seleccionada
-        terminar= False
-        elemActual = self.matriz[x][y]
+        print("MOVER:",x,y)#casillaSeleccionada
+        
+        if self.matriz[x][y].getTipo() != "casillaAlien":
 
-        if elemActual.getTipo() == "casillaAlien":
-            self.matriz[x][y] = Casilla(self.framePG, self.ruta)
+            campoAuxiliar = self.matriz[self.Arbitro.getJugadorEnTurno().getUbicacion()[0]][self.Arbitro.getJugadorEnTurno().getUbicacion()[1]]
+            self.matriz[self.Arbitro.getJugadorEnTurno().getUbicacion()[0]][self.Arbitro.getJugadorEnTurno().getUbicacion()[1]] = Casilla(self.framePG, self.ruta)
 
-            while not terminar:
-                for evento in pygame.event.get():
-                    if evento.type == pygame.MOUSEBUTTONUP:
-                        nuevasCoord= self.getCasillaSeleccionada()
-                        self.matriz[nuevasCoord[0]][nuevasCoord[1]] = elemActual
-                        #self.Arbitro.getJugadorEnTurno().setUbicacion()
-                        self.Arbitro.getJugadorEnTurno().restarAcciones()
-                        terminar = True
+            self.matriz[x][y] = campoAuxiliar
+            self.Arbitro.getJugadorEnTurno().setUbicacion(x,y)
+
+            self.Arbitro.getJugadorEnTurno().restarAcciones()
+        
                                       
     def actualizarTextos(self):
         textoVida = self.fuente.render("Vida Disponible:" + str(self.Arbitro.getJugadorEnTurno().getVidaMaxima())+"/"+str(self.Arbitro.getJugadorEnTurno().getVidaActual()),True, (255, 255, 255))
