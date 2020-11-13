@@ -165,37 +165,32 @@ class CampoBatalla(pygame.sprite.Sprite):
         posicion = pygame.mouse.get_pos()
         columna = posicion[0] // ( self.dimCuadros + 1) #width
         fila = posicion[1] // ( self.dimCuadros + 1) #altura
-        #self.matriz[fila][columna] = 1 #Cambiarle el color a la casilla
-        print("Posición ", posicion, "Coordenadas en nuestra cuadrícula: ", fila, columna)
         return fila, columna
 
     
         ###Personajeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
     def mover(self, x, y):
-        print("MOVER:",x,y)#casillaSeleccionada
         
         if self.matriz[x][y].getTipo() == "estandar":
-
+            #guarda en una variable auxiliar la casilla con el personaje a mover
             campoAuxiliar = self.matriz[self.Arbitro.getJugadorEnTurno().getUbicacion()[0]][self.Arbitro.getJugadorEnTurno().getUbicacion()[1]]
+            #asigna a la ubicación del jugador una casilla estándar
             self.matriz[self.Arbitro.getJugadorEnTurno().getUbicacion()[0]][self.Arbitro.getJugadorEnTurno().getUbicacion()[1]] = Casilla(self.framePG, self.ruta)
-
+            #asigna al campo seleccionado el auxiliar que almacena al personaje
             self.matriz[x][y] = campoAuxiliar
-            self.Arbitro.getJugadorEnTurno().setUbicacion(x,y)
+            self.Arbitro.getJugadorEnTurno().setUbicacion(x,y)#cambia la ubicación logicamente
 
-            self.Arbitro.getJugadorEnTurno().restarAcciones()
-        
-                                      
-    def actualizarTextos(self):
-        textoVida = self.fuente.render("Vida Disponible:" + str(self.Arbitro.getJugadorEnTurno().getVidaMaxima())+"/"+str(self.Arbitro.getJugadorEnTurno().getVidaActual()),True, (255, 255, 255))
+            self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno
+                                         
+    def actualizarAcciones(self):
         pygame.draw.rect(self.framePG, (255, 0, 0), [1016, 19, 400, 800], 0)#self.colorLineas
-        #pygame.draw.rect(self.framePG, (255, 0, 0), [1016, 19, 400, 400], 0)
         textoJugador = self.fuente.render("Turno del Jugador:" +str(self.Arbitro.getTurno()),True, (255, 255, 255))
-        self.framePG.blit(textoVida, (1016, 19))
+        textoVida = self.fuente.render("Vida Disponible:" + str(self.Arbitro.getJugadorEnTurno().getVidaMaxima())+"/"+str(self.Arbitro.getJugadorEnTurno().getVidaActual()),True, (255, 255, 255))
         self.framePG.blit(textoJugador, (1016, 50))
-        #self.matriz[4][1].
-    def manejarEventos(self):
-        #frameActualiza = pygame.display.set_mode()
+        self.framePG.blit(textoVida, (1016, 19))
         
+        
+    def manejarEventos(self):      
         while not self.terminar:  
             #self.setMiniAlien()
             #self.framePG.blit(self.miniAlien,(1016, 19))
@@ -215,10 +210,10 @@ class CampoBatalla(pygame.sprite.Sprite):
                         coordenadas = self.getCasillaSeleccionada()
                         self.mover(coordenadas[0], coordenadas[1])                        
                     except IndexError:
-                        print("algo anda mal")
+                        pass #Error: debe seleccionar una ubicación de la matriz mostrada
             if self.Arbitro.getJugadorEnTurno().getAccionesDisponibles()==0:
                 self.Arbitro.asignarTurno()
-            self.actualizarTextos()
+            self.actualizarAcciones()
             pygame.display.update()      
             
 
