@@ -18,7 +18,8 @@ class Boton():
         self.screen = screen
         self.fuente = pygame.font.SysFont("Arial",25)
         self.mousePos = pygame.mouse.get_pos()
-        
+    def setColor(self,color):
+        self.color = color
     def dibujarBoton(self):
         pygame.draw.rect(self.screen, self.color, self.rectangulo, 0)#variable de la pantalla, (colores RGB, 30, 139, 176), rectangulo, borde
         texto = self.fuente.render(self.textoBoton,True,((random.randrange(0, 100), random.randrange(0, 100), random.randrange(0, 100))))
@@ -103,19 +104,44 @@ class CampoBatalla(pygame.sprite.Sprite):
         self.matriz = self.generarMatriz()
         
         self.fuente = pygame.font.Font(None, 30)
+        self.fuente1 = pygame.font.SysFont("Gadugi", 17)
+        self.fuente2 = pygame.font.SysFont("Chiller", 35)
         #self.casilla = Casilla(self.framePG, self.matriz, "", self.dimCuadros)
         self.terminar =False
         self.miniJugador1 = pygame.image.load(os.path.join(self.ruta, Arbitro.getJugador1().getImagen()))
         self.miniJugador2 = pygame.image.load(os.path.join(self.ruta, Arbitro.getJugador2().getImagen()))
         self.miniJugador3 = pygame.image.load(os.path.join(self.ruta, Arbitro.getJugador3().getImagen()))
-        #self.btnCurar = Boton(1080, 340,150,50, "Curar","btncurar",(155, 155, 155), self.framePG)
+        self.btnCurar = Boton(1080, 200,150,50, "Curar","btncurar",(155, 155, 155), self.framePG)
+        self.btnPotenciar = Boton(1080, 340,150,50, "Potenciar","btnpotenciar",(155, 155, 155), self.framePG)
+        
+        self.pasarPocima = 0
+        self.pasarPotenciador = 0
+        self.pasarArma = 0
         self.manejarEventos()
       #self.Arbitro.asignarTurno()
     #def llamarCurar(self):
     #def setMiniAlien(self):
     #    self.miniAlien = self.Arbitro.getJugadorEnTurno().getImagen()
-    def crearBotones(self):
+    def dibujarBotones(self):
         self.btnCurar.dibujarBoton()
+        self.btnPotenciar.dibujarBoton()
+        #boton curar
+        if self.Arbitro.getJugadorEnTurno().tienePocimas():
+            self.btnCurar.setColor((36,222,11))
+            self.mostrarPocimaDisponible()
+            #print("Pocimas:",self.Arbitro.getJugadorEnTurno().getPocimas()[0].getNombre())
+        else:
+            self.btnCurar.setColor((155, 155, 155))
+        #boton potenciar
+        if self.Arbitro.getJugadorEnTurno().tienePotenciadores():
+            self.btnPotenciar.setColor((36,222,11))
+            self.mostrarPotenciadorDisponible()
+            #print("Potenciadores",self.Arbitro.getJugadorEnTurno().getPotenciadores()[0].getNombre())
+        else:
+            self.btnPotenciar.setColor((155, 155, 155))
+
+        #print("Armas:",self.Arbitro.getJugadorEnTurno().getArmas()[0].getNombre())
+        #print("Arma Equipada:",self.Arbitro.getJugadorEnTurno().getArmaEquipada().getNombre())
     def generarMatriz(self):      
         matrizCuadriculada = []
         for fila in range(6):
@@ -196,8 +222,8 @@ class CampoBatalla(pygame.sprite.Sprite):
             self.matriz[self.Arbitro.getJugadorEnTurno().getUbicacion()[0]][self.Arbitro.getJugadorEnTurno().getUbicacion()[1]] = Casilla(self.framePG, self.ruta)
             #asigna al campo seleccionado el auxiliar que almacena al personaje
             self.matriz[x][y] = campoAuxiliar
-            self.Arbitro.getJugadorEnTurno().setUbicacion(x,y)#cambia la ubicación logicamente
-            self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno
+            self.Arbitro.getJugadorEnTurno().setUbicacion(x,y)#cambia la ubicación logicamente    
+            return True
         else:
             return False
     def verificarAtacar(self,x,y):
@@ -209,21 +235,72 @@ class CampoBatalla(pygame.sprite.Sprite):
             return False
     def atacar(self,x,y):
         if self.verificarAtacar(x,y):
-            pass
+            self.matriz[x][y].getPersonaje().restarVida(self.Arbitro.getJugadorEnTurno().getAtaque())
+            return True
         else:
-            return
+            return False
     def actualizarAcciones(self):
-        pygame.draw.rect(self.framePG, (255, 0, 0), [1016, 19, 400, 800], 0)#self.colorLineas
+        imagen = pygame.image.load(os.path.join(self.ruta, self.Arbitro.getJugadorEnTurno().getImagen()))
+        pygame.draw.rect(self.framePG, self.colorLineas, [1016, 19, 400, 800], 0)#rectangulo de dibujo
         textoJugador = self.fuente.render("Turno del Jugador:" +str(self.Arbitro.getTurno()),True, (255, 255, 255))
-        textoVida = self.fuente.render("Vida Disponible:" + str(self.Arbitro.getJugadorEnTurno().getVidaMaxima())+"/"+str(self.Arbitro.getJugadorEnTurno().getVidaActual()),True, (255, 255, 255))
+        self.framePG.blit(imagen, (1130, 88))
+        textoVida = self.fuente.render("Vida Disponible:"+str(self.Arbitro.getJugadorEnTurno().getVidaActual())+"/"+str(self.Arbitro.getJugadorEnTurno().getVidaMaxima()),True, (255, 255, 255))
         self.framePG.blit(textoJugador, (1016, 50))
-        self.framePG.blit(textoVida, (1016, 19))      
-        #self.crearBotones()
-    
+        self.framePG.blit(textoVida, (1016, 19))
+        self.dibujarBotones()
+        self.mostrarArmas()
+    #métodos para curar el Alien en turno
+    def mostrarPocimaDisponible(self):
+        textoAyuda = "Presiona 'a' para más pócimas."
+        if self.pasarPocima > len(self.Arbitro.getJugadorEnTurno().getPocimas())-1:
+            textoAyuda = "Ya no hay más pócimas."
+            self.pasarPocima = 0
+        texto = self.fuente1.render("Pócima: " +self.Arbitro.getJugadorEnTurno().getPocimas()[self.pasarPocima].getNombre(),True, (255, 255, 255))
+        texto2 = self.fuente1.render(textoAyuda,True, (255, 255, 255))
+        self.framePG.blit(texto, (1015, 262))
+        self.framePG.blit(texto2, (1015, 290))
+    def llamarCurar(self):
+        if self.btnCurar.getColor()==(36,222,11):#verifica que el boton de curar esté en verde
+            #después verifica que la vida del personaje se pueda curar
+            if self.Arbitro.getJugadorEnTurno().getVidaActual()<self.Arbitro.getJugadorEnTurno().getVidaMaxima():
+                self.Arbitro.getJugadorEnTurno().usarPocima(self.pasarPocima)
+                self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno
+                return True
+        return False
+    #métodos para potenciar el Alien en turno
+    def mostrarPotenciadorDisponible(self):
+        textoAyuda = "Presiona 's' para más potenciadores."
+        if self.pasarPotenciador > len(self.Arbitro.getJugadorEnTurno().getPotenciadores())-1:
+            textoAyuda = "Ya no hay más potenciadores."
+            self.pasarPotenciador = 0
+        texto = self.fuente1.render("Potenciador: " +self.Arbitro.getJugadorEnTurno().getPotenciadores()[self.pasarPotenciador].getNombre(),True, (255, 255, 255))
+        texto2 = self.fuente1.render(textoAyuda,True, (255, 255, 255))
+        self.framePG.blit(texto, (1015, 390))
+        self.framePG.blit(texto2, (1015, 425))
+    def llamarPotenciar(self):
+        if self.btnPotenciar.getColor()==(36,222,11):#verifica que el boton de potenciar esté en verde
+            self.Arbitro.getJugadorEnTurno().usarPotenciador(self.pasarPotenciador)
+            self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno
+            return True
+        else:
+            return False
+    def mostrarArmas(self):
+        textoAyuda = "Presiona 'd' para cambiar arma."
+        if self.pasarArma > len(self.Arbitro.getJugadorEnTurno().getArmas())-1:
+            textoAyuda = "No hay más armas."
+            self.pasarArma = 0
+        self.Arbitro.getJugadorEnTurno().usarArma(self.pasarArma)
+        texto1 = self.fuente1.render("Arma Equipada: ",True, (255, 255, 255))
+        texto2 = self.fuente2.render(self.Arbitro.getJugadorEnTurno().getArmaEquipada().getNombre(),True, (255, 255, 255))
+        texto3 = self.fuente1.render(textoAyuda,True, (255, 255, 255))
+        pygame.draw.rect(self.framePG, (27,27,55), [1014, 470, 280, 200], 0)#rectangulo de dibujo
+        imagen = pygame.image.load(os.path.join(self.ruta, self.Arbitro.getJugadorEnTurno().getArmaEquipada().getImagen()))
+        self.framePG.blit(imagen, (1200, 510))
+        self.framePG.blit(texto1, (1100, 477))
+        self.framePG.blit(texto2, (1050, 510))
+        self.framePG.blit(texto3, (1021, 570))
     def manejarEventos(self):      
         while not self.terminar:  
-            #self.setMiniAlien()
-            #self.framePG.blit(self.miniAlien,(1016, 19))
             self.dibujarTablero()
             #self.btnCurar.dibujarBoton()
             for evento in pygame.event.get():
@@ -232,11 +309,23 @@ class CampoBatalla(pygame.sprite.Sprite):
                 elif evento.type == pygame.KEYDOWN:
                     if evento.key == pygame.K_ESCAPE:
                         self.salir()
-                elif evento.type == pygame.MOUSEBUTTONDOWN:    
+                    elif evento.key == pygame.K_a:
+                        self.pasarPocima += 1
+                    elif evento.key == pygame.K_s:
+                        self.pasarPotenciador += 1
+                    elif evento.key == pygame.K_d:
+                        self.pasarArma += 1
+                elif evento.type == pygame.MOUSEBUTTONDOWN:
+                    if self.btnCurar.verificarPresionado(pygame.mouse.get_pos()):
+                        self.llamarCurar()
+                    elif self.btnPotenciar.verificarPresionado(pygame.mouse.get_pos()):
+                        self.llamarPotenciar()  
                     try:
-                        coordenadas = self.getCasillaSeleccionada()
-                        self.mover(coordenadas[0], coordenadas[1])
-                        self.atacar(coordenadas[0], coordenadas[1])                      
+                        coordenadas = self.getCasillaSeleccionada()                       
+                        if self.mover(coordenadas[0], coordenadas[1]):
+                            self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno
+                        elif self.atacar(coordenadas[0], coordenadas[1]):
+                            self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno                                               
                     except IndexError:
                         pass #Error: debe seleccionar una ubicación de la matriz mostrada
             if self.Arbitro.getJugadorEnTurno().getAccionesDisponibles()==0:
@@ -244,7 +333,6 @@ class CampoBatalla(pygame.sprite.Sprite):
             self.actualizarAcciones()
             pygame.display.update()      
             
-
 class Vestibulo(pygame.sprite.Sprite):
     def __init__(self, titulo, dimensiones):
         pygame.sprite.Sprite.__init__(self) #herencia  
@@ -300,8 +388,7 @@ class Vestibulo(pygame.sprite.Sprite):
     def jugar(self):
         self.terminar = True
         campoBatalla= CampoBatalla("Galaxia Zombi", 100, (1300, 600), (24, 22, 67), (88, 40, 165),Arbitro(self.personajes))
-        
-        
+               
     def salir(self):
         pygame.quit()
         sys.exit()
