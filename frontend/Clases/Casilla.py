@@ -23,7 +23,7 @@ class Casilla:
         color = (28, 3, 107) 
         
         imagen = pygame.image.load(os.path.join(self.ruta, self.imagen)).convert_alpha()
-        if self.tipo!="inicial":
+        if self.tipo!="casillaAlien":
             imagen = pygame.transform.scale(imagen, (self.dimCuadros, self.dimCuadros))
         cuadro = pygame.draw.rect(self.framePG,
                         color,
@@ -33,7 +33,8 @@ class Casilla:
                         self.dimCuadros])                 
         if self.tipo != "estandar":
             self.framePG.blit(imagen, cuadro)
-        pygame.display.flip()     
+        pygame.display.flip()   
+
     def getTipo(self):
         return self.tipo;   
    

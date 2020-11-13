@@ -127,7 +127,7 @@ class CampoBatalla(pygame.sprite.Sprite):
                 else:
                     matrizCuadriculada[fila].append(Casilla(self.framePG, self.ruta))  #Casilla() vacía
                     if fila== 4 and columna == 1:
-                        matrizCuadriculada[fila][columna].setTipo("inicial")
+                        matrizCuadriculada[fila][columna].setTipo("casillaAlien")
                         matrizCuadriculada[fila][columna].setImagen(self.Arbitro.getJugador1().getImagen())
                     #elif fila==4 and columna == 0:
                     #    matrizCuadriculada[fila][columna].setImagen("imagenes/miniAndromeda.png")
@@ -166,22 +166,25 @@ class CampoBatalla(pygame.sprite.Sprite):
         #self.matriz[fila][columna] = 1 #Cambiarle el color a la casilla
         print("Posición ", posicion, "Coordenadas en nuestra cuadrícula: ", fila, columna)
         return fila, columna
+
     
         ###Personajeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
     def mover(self, x, y):
         print("MOVER:",x,y)#casilla seleccionada
         terminar= False
         elemActual = self.matriz[x][y]
-        self.matriz[x][y] = Casilla(self.framePG, self.ruta)
 
-        while not terminar:
-            for evento in pygame.event.get():
-                if evento.type == pygame.MOUSEBUTTONUP:
-                    nuevasCoord= self.getCasillaSeleccionada()
-                    self.matriz[nuevasCoord[0]][nuevasCoord[1]] = elemActual
-                    #self.Arbitro.getJugadorEnTurno().setUbicacion()
-                    self.Arbitro.getJugadorEnTurno().restarAcciones()
-                    terminar = True
+        if elemActual.getTipo() == "casillaAlien":
+            self.matriz[x][y] = Casilla(self.framePG, self.ruta)
+
+            while not terminar:
+                for evento in pygame.event.get():
+                    if evento.type == pygame.MOUSEBUTTONUP:
+                        nuevasCoord= self.getCasillaSeleccionada()
+                        self.matriz[nuevasCoord[0]][nuevasCoord[1]] = elemActual
+                        #self.Arbitro.getJugadorEnTurno().setUbicacion()
+                        self.Arbitro.getJugadorEnTurno().restarAcciones()
+                        terminar = True
                                       
     def actualizarTextos(self):
         textoVida = self.fuente.render("Vida Disponible:" + str(self.Arbitro.getJugadorEnTurno().getVidaMaxima())+"/"+str(self.Arbitro.getJugadorEnTurno().getVidaActual()),True, (255, 255, 255))
@@ -213,7 +216,7 @@ class CampoBatalla(pygame.sprite.Sprite):
                         coordenadas = self.getCasillaSeleccionada()
                         self.mover(coordenadas[0], coordenadas[1])                        
                     except IndexError:
-                        pass
+                        print("algo anda mal")
             if self.Arbitro.getJugadorEnTurno().getAccionesDisponibles()==0:
                 self.Arbitro.asignarTurno()
             self.actualizarTextos()
