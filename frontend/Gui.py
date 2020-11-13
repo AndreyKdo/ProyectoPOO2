@@ -174,7 +174,7 @@ class CampoBatalla(pygame.sprite.Sprite):
     def mover(self, x, y):
         print("MOVER:",x,y)#casillaSeleccionada
         
-        if self.matriz[x][y].getTipo() != "casillaAlien":
+        if self.matriz[x][y].getTipo() == "estandar":
 
             campoAuxiliar = self.matriz[self.Arbitro.getJugadorEnTurno().getUbicacion()[0]][self.Arbitro.getJugadorEnTurno().getUbicacion()[1]]
             self.matriz[self.Arbitro.getJugadorEnTurno().getUbicacion()[0]][self.Arbitro.getJugadorEnTurno().getUbicacion()[1]] = Casilla(self.framePG, self.ruta)
