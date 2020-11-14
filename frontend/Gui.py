@@ -79,6 +79,7 @@ class Arbitro():
         print("Jugador turno Anterior:",self.enTurno.getNombre())
         if self.ubicacionEnlista == 2:
             self.ubicacionEnlista = 0
+            self.contadorTurnos+=1
         else:
             self.ubicacionEnlista += 1
         self.enTurno = self.listaJugadores[self.ubicacionEnlista]
@@ -195,8 +196,7 @@ class CampoBatalla(pygame.sprite.Sprite):
         return framePG
     ###Personajeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
     def getCasillaSeleccionada(self):
-        posicion = pygame.mouse.get_pos()
-        print("posicion seleccionada:",posicion)
+        posicion = pygame.mouse.get_pos()#devuelve la posicion de la ventana donde se dio click 
         columna = posicion[0] // ( self.dimCuadros + 1) #width
         fila = posicion[1] // ( self.dimCuadros + 1) #altura
         return fila, columna
@@ -302,7 +302,6 @@ class CampoBatalla(pygame.sprite.Sprite):
     def manejarEventos(self):      
         while not self.terminar:  
             self.dibujarTablero()
-            #self.btnCurar.dibujarBoton()
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     self.salir()
@@ -356,6 +355,8 @@ class Vestibulo(pygame.sprite.Sprite):
         self.btnsAndromeda = self.crearBotonesAndromeda()
         self.btnsOrion = self.crearBotonesOrion()
         self.btnsOsaMayor = self.crearBotonesOsaMayor()
+        self.fuente1 = pygame.font.SysFont("Bookman Old Style", 17)
+        self.fuente2 = pygame.font.SysFont("Castellar", 25)
         self.mantenerEscucha()
     
     def crearBotonesAndromeda(self):
@@ -427,9 +428,6 @@ class Vestibulo(pygame.sprite.Sprite):
 
     def mostrarHabilidades(self,palien):
         texto = palien.obtenerHabilidades()
-##        fuente = pygame.font.Font(None,30)
-##        mensaje = fuente.render(texto, 0, (200, 60, 80))
-##        self.framePG.blit(mensaje, (0, 0))
         print(texto)
         
     def dibujarBotones(self):
@@ -437,20 +435,65 @@ class Vestibulo(pygame.sprite.Sprite):
         for i in range(len(matrizBotones)):
             for j in range(len(matrizBotones[i])):
                 matrizBotones[i][j].dibujarBoton()
-        
+    def imprimirDescripcion(self,palien):
+        listaDescripcion = palien.obtenerHabilidades().split("\n")
+        #print(listaDescripcion)
+        x,y=10, 13
+        for linea in listaDescripcion:
+            if y == 13:
+                descripcion = self.fuente2.render(linea,True, (255, 255, 255))
+                self.framePG.blit(descripcion, (290, y))
+                y+=20
+            else:
+                plinea = linea.split(":")
+                for oracion in plinea:                        
+                    descripcion = self.fuente1.render(oracion,True, (255, 255, 255))
+                    self.framePG.blit(descripcion, (x, y))
+                    y+=16
+    def fondoTemporal(self,imagen):
+        imagenTemp = pygame.image.load(os.path.join(self.ruta, imagen))            
+        self.framePG.blit(pygame.transform.scale(imagenTemp, (1012, 600)), [0, 0])
+        #rectangulo transparente obtenido de https://stackoverflow.com/questions/6339057/draw-a-transparent-rectangle-in-pygame
+        s = pygame.Surface((995, 270))  # the size of your rect
+        s.set_alpha(128)                # alpha level
+        s.fill((0,0,0)) 
+        self.framePG.blit(s, (0,0))
+
+    def mostrarDescripcion(self):
+        #Se lee por la posición del mouse mediante el método pygame.mouse.get_pos()       
+        if pygame.mouse.get_pos()[0]>=110 and pygame.mouse.get_pos()[0]<=190 and pygame.mouse.get_pos()[1]>=325 and pygame.mouse.get_pos()[1]<=500:#"Ubicación de Andrómeda"
+            pygame.draw.rect(self.framePG, (18,204,230), [10, 13, 995, 250], 0)#rectangulo de dibujo
+            self.fondoTemporal("imagenes/andromedaGalaxy.jpg")
+            self.framePG.blit(self.andromeda.getImagen(), (self.posX, self.posY))
+            self.imprimirDescripcion(self.andromeda)
+        elif pygame.mouse.get_pos()[0]>=430 and pygame.mouse.get_pos()[0]<=525 and pygame.mouse.get_pos()[1]>=315 and pygame.mouse.get_pos()[1]<=520:#"Ubicación de Osa Mayor"            
+            self.fondoTemporal("imagenes/osaMayorConstelacion.jpg")
+            self.framePG.blit(self.osaMayor.getImagen(), (self.posX+280, 300))
+            self.imprimirDescripcion(self.osaMayor)
+        elif pygame.mouse.get_pos()[0]>=750 and pygame.mouse.get_pos()[0]<=840 and pygame.mouse.get_pos()[1]>=317 and pygame.mouse.get_pos()[1]<=440:#"Ubicación de Orión"
+            pygame.draw.rect(self.framePG, (18,204,230), [10, 13, 995, 250], 0)#rectangulo de dibujo
+            self.fondoTemporal("imagenes/orionConstelacion.jpg")
+            self.framePG.blit(self.orion.getImagen(), (self.posX+600, 260))
+            self.imprimirDescripcion(self.orion)
+        else: pass
     def mantenerEscucha(self):#keep listening, esperando eventos
         while not self.terminar:
+            
             for eventos in pygame.event.get():
                 if eventos.type == pygame.QUIT:
                     self.salir()
                 elif eventos.type == pygame.KEYDOWN:
                     self.jugar()
                 elif eventos.type == pygame.MOUSEBUTTONDOWN:
+                    print(pygame.mouse.get_pos())
                     self.getSeleccionados()  
             #framePG.blit(self.imgTitulo,(100,100))
             self.insertarImgs()
             self.dibujarBotones()
-            pygame.display.update()         
+            self.mostrarDescripcion()
+            
+            pygame.display.update()
+                 
 
 
 class Inicio(pygame.sprite.Sprite):

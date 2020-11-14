@@ -19,8 +19,6 @@ class Personaje():
     def __init__(self,listaHabilidades,acciones):
         self.accionesTurno = acciones
         self.habilidades = listaHabilidades#lista de objetos tipo Habilidad
-    def subirNivel(self):
-        pass
     def getUbicacionAnterior(self):
         return self.ubicacionAnterior
     def getUbicacion(self):
@@ -36,6 +34,7 @@ class Personaje():
             self.vida += exp - (self.vidaMaxima-self.vida)
         self.vidaMaxima += exp
         self.ataque += exp
+        self.vida = self.vidaMaxima
     def getVidaMaxima(self):
         return self.vidaMaxima
     def getVidaActual(self):
@@ -123,28 +122,29 @@ class Alien(Personaje):
             self.imgAlien = imagen
     def getNombre(self):
         return self.nombre
+    #obtiene las habilidades en un texto
     def obtenerHabilidades(self):
-        texto = "Habilidades de "+self.getNombre()+":\n"
+        texto = "Habilidades de "+self.getNombre()+":"
         for habilidad in self.getHabilidades():
-            texto += "\n"+habilidad.nombre+":"+habilidad.descripcion+"\n"
+            texto += "\n*       "+habilidad.nombre+":       "+habilidad.descripcion+"\n"
         return texto  
     def definirHabilidades(self):
         listaHabilidades = []
         if self.nombre == "Andrómeda":
             #anula el sonido de una casilla
-            listaHabilidades.append(MenosRuido("Silenciantenas",10," Los silenciosos habitantes de esta galaxia son imperceptibles al oído humano... al menos la mayoría del tiempo."))
-            listaHabilidades.append(Teletransporte("Cinturón de Gusano",2," Este simpático alienígena tiene la afición de visitar los lugares que anteriormente ha visitado, tanto así que se ha fabricado un cinturón a partir de espacio-tiempo."))
-            listaHabilidades.append(Confusion("Mirada Confusa",5," ¡No mires a este alienígena directamente a los ojos! La última vez que un humano lo hizo, este comenzó a morderse la lengua y a pegarse el dedo chiquito del pie."))
+            listaHabilidades.append(MenosRuido("Silenciantenas (Silencio):",10,"Los silenciosos habitantes de esta galaxia son imperceptibles al oído humano... al menos la mayoría del tiempo."))
+            listaHabilidades.append(Teletransporte("Cinturón de Gusano (Teletransporte):",2,"Este simpático alienígena tiene la afición de visitar los lugares que anteriormente ha visitado,\n tanto así que se ha fabricado un cinturón a partir de espacio-tiempo."))
+            listaHabilidades.append(Confusion("Mirada Confusa (Confusión):",5,"¡No mires a este alienígena directamente a los ojos! \n   La última vez que un humano lo hizo, este comenzó a morderse la lengua y a pegarse el dedo chiquito del pie."))
             self.armas.append(Arma("Meteoritov", 10, 10))
         elif self.nombre == "Osa Mayor":
-            listaHabilidades.append(Escalar("Tentáculosos",1," Los habitantes de esta constelación no necesitan ascensor, ni escaleras, ni arnés. ¿Escalar el Himalaya? Eso es como dar un paseo en el parque para este espécimen."))
-            listaHabilidades.append(MultiAtaque("Octo-Punch",2," Para este alienígena aparentemente pacífico, las artes marciales es como aprender a caminar. Si te enfrentas con él, mejor ve consiguiendo cita con el dentista... y unos 4 cascos de fibra de carbono."))
-            listaHabilidades.append(TurnoExtra("Fast-Opus",5," Una vez pusieron a competir a este Alienígena con el actual Récord Guiness de armar cubos de rubik. El reloj no había ni comenzado a marcar el segundo, cuando este fue batido ¡8 veces! Obtiene un turno extra con su capacidad."))
+            listaHabilidades.append(Escalar("Tentáculosos (Escalar): ",1,"Los habitantes de esta constelación no necesitan ascensor, ni escaleras, ni arnés.\n ¿Escalar el Himalaya? Eso es como dar un paseo en el parque."))
+            listaHabilidades.append(MultiAtaque("Octo-Punch (Multi-Ataque):",2,"Para este alienígena aparentemente pacífico, las artes marciales es como aprender a caminar.\n Mejor ve consiguiendo cita con el dentista... y unos 4 cascos de fibra de carbono."))
+            listaHabilidades.append(TurnoExtra("Fast-Opus (Turno Extra): ",5,"La capacidad de realizar múltiples tareas al mismo tiempo es algo con lo que soñamos.\n Osa Mayor es una gran ayuda para mis proyectos de programación."))
             self.armas.append(Arma("Rayo Láser", 5, 5))
         else: #Si self.nombre == "Orión":
-            listaHabilidades.append(MasAlcance("Cazador",1," Los habitantes de Orión son por naturaleza grandes cazadores que atinan la jabalina a un punto específico desde grandes distancias. Dales cualquier tipo de arma, ponte una manzana en la cabeza y trata de cerrar los ojos antes de su tiro."))
-            listaHabilidades.append(RepeleAtaque("Elastipiel",2," Este alienígena es profesional en esquivar hasta el más mínimo embate. ¡Orión es una constelación genial para jugar quemados!"))
-            listaHabilidades.append(Invisible("Traje de Invisibilidad",5," Él puede pasar frente tus narices sin que lo veas, sus ropas lo hacen ser imperceptible a todo ojo del universo conocido. ¡Quiero su traje para espiar a mi gato en la noche sin que me vea!"))
+            listaHabilidades.append(MasAlcance("Cazador (Más Alcance):",1,"Los habitantes de Orión son grandes cazadores que atinan cualquier dardo desde grandes distancias.\n Dales cualquier tipo de arma, ponte una manzana en la cabeza y trata de cerrar los ojos antes de su tiro."))
+            listaHabilidades.append(RepeleAtaque("Elastipiel (Repele-Ataque):",2,"Este alienígena es profesional en esquivar hasta el más mínimo embate.\n ¡Orión es una constelación genial para jugar quemados!"))
+            listaHabilidades.append(Invisible("Traje de Invisibilidad: ",5,"Sus ropas lo hacen ser imperceptible a todo ojo del universo conocido.\n ¡Quiero su traje para espiar a mi gato en la noche sin que me vea!"))
         return listaHabilidades
     def restarAcciones(self):
         self.accionesTurno-=1
