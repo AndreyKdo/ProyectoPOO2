@@ -83,6 +83,9 @@ class Arbitro():
         self.ubicacionEnlista = 0
         self.asignarImgMinis()
         self.asignarUbicacionInicial()
+        self.turnoRival = False
+    def getTurnoRival(self):
+        return self.turnoRival
     def asignarImgMinis(self):
         for jugador in self.listaJugadores:
             if jugador.getNombre() == "Andrómeda":
@@ -127,15 +130,16 @@ class Arbitro():
                 return False
         return True
     def asignarTurno(self):
-        turnoZombi = False    
+        #turnoZombi = False    
         if self.ubicacionEnlista == 2:#len(self.listaJugadores)-1:
             self.ubicacionEnlista = 0
             self.contadorTurnos+=1
-            turnoZombi = True
+            self.turnoRival = True
         else:
+            self.turnoRival = False
             self.ubicacionEnlista += 1
         self.enTurno = self.listaJugadores[self.ubicacionEnlista]   
-        return turnoZombi
+        #return turnoZombi
 
     def restarAcciones(self):
         self.enTurno.sumarTurnos(-1)
@@ -632,22 +636,24 @@ class CampoBatalla(pygame.sprite.Sprite):
                         #Depende del arma escogida .setAtaque(), puños <4, laser <7, meteoro<10 
                         self.pasarArma += 1
                 elif evento.type == pygame.MOUSEBUTTONDOWN:
-                    if self.btnCurar.verificarPresionado(pygame.mouse.get_pos()):
-                        self.llamarCurar()
-                    elif self.btnPotenciar.verificarPresionado(pygame.mouse.get_pos()):
-                        self.llamarPotenciar()  
-                    try:
-                        coordenadas = self.getCasillaSeleccionada()                       
-                        if self.mover(coordenadas[0], coordenadas[1]):
-                            self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno
-                        elif self.atacar(coordenadas[0], coordenadas[1]):
-                            #saber el ataque que se hizo para setear el atributo ataque de Personaje
-                            self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno                                               
-                            # zombi cercano . restarVida(ataque)
-                    except IndexError:
-                        pass #Error: debe seleccionar una ubicación de la matriz mostrada
+                    if self.Arbitro.getJugadorEnTurno().morir()==False:
+                        if self.btnCurar.verificarPresionado(pygame.mouse.get_pos()):
+                            self.llamarCurar()
+                        elif self.btnPotenciar.verificarPresionado(pygame.mouse.get_pos()):
+                            self.llamarPotenciar()  
+                        try:
+                            coordenadas = self.getCasillaSeleccionada()                       
+                            if self.mover(coordenadas[0], coordenadas[1]):
+                                self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno
+                            elif self.atacar(coordenadas[0], coordenadas[1]):
+                                #saber el ataque que se hizo para setear el atributo ataque de Personaje
+                                self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno                                               
+                                # zombi cercano . restarVida(ataque)
+                        except IndexError:
+                            pass #Error: debe seleccionar una ubicación de la matriz mostrada
             if self.Arbitro.getJugadorEnTurno().getAccionesDisponibles()==0:
-                if self.Arbitro.asignarTurno():
+                self.Arbitro.asignarTurno()
+                if self.Arbitro.getTurnoRival():
                     if ataque != False and ataque > 3:
                         self.seguirRuido(ataque)
                     else: 
