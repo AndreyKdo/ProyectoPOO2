@@ -26,8 +26,6 @@ class Personaje():
     def setUbicacion(self,x,y):
         self.ubicacionAnterior = self.ubicacion
         self.ubicacion = (x,y)
-    def getVidaMax(self):
-        return vidaMaxima
     def avanzarNivel(self,item):
         exp = item.aplicarExp()
         if self.vida < self.vidaMaxima:
