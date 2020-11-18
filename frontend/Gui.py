@@ -83,7 +83,6 @@ class Arbitro():
         self.ubicacionEnlista = 0
         self.asignarImgMinis()
         self.asignarUbicacionInicial()
-        self.turnoRival = False
     def asignarImgMinis(self):
         for jugador in self.listaJugadores:
             if jugador.getNombre() == "Andrómeda":
@@ -122,24 +121,22 @@ class Arbitro():
         else:
             self.ubicacionEnlista += 1
             self.turnoRival = False
-
+    def evaluarFin(self):
+        for alien in self.listaJugadores:
+            if alien.morir()==False:
+                return False
+        return True
     def asignarTurno(self):
-        print("Jugador turno Anterior:",self.listaJugadores[self.ubicacionEnlista].getNombre())
-        
-        self.setUbicacionLista()
-            #print("ESTOS SON LOS OBJETOS DE LA LISTAAAAAaa: ", self.listaJugadores)
-        """if self.ubicacionEnlista == 2:
+        turnoZombi = False    
+        if self.ubicacionEnlista == 2:#len(self.listaJugadores)-1:
             self.ubicacionEnlista = 0
             self.contadorTurnos+=1
-            self.turnoRival = True
+            turnoZombi = True
         else:
-            self.ubicacionEnlista += 1"""
-        while(self.listaJugadores[self.ubicacionEnlista].morir()):
-            print("CONTADOR DE TURNOS: ",self.contadorTurnos)
-            self.setUbicacionLista()
-        self.enTurno = self.listaJugadores[self.ubicacionEnlista]
-        print("Jugador turno Actual:",self.enTurno.getNombre())
-        return self.turnoRival
+            self.ubicacionEnlista += 1
+        self.enTurno = self.listaJugadores[self.ubicacionEnlista]   
+        return turnoZombi
+
     def restarAcciones(self):
         self.enTurno.sumarTurnos(-1)
     def getJugadorEnTurno(self):
@@ -177,12 +174,8 @@ class CampoBatalla(pygame.sprite.Sprite):
         self.pasarPocima = 0
         self.pasarPotenciador = 0
         self.pasarArma = 0
-
         self.manejarEventos()
-      #self.Arbitro.asignarTurno()
-    #def llamarCurar(self):
-    #def setMiniAlien(self):
-    #    self.miniAlien = self.Arbitro.getJugadorEnTurno().getImagen()
+
     def dibujarBotones(self):
         self.btnCurar.dibujarBoton()
         self.btnPotenciar.dibujarBoton()
@@ -230,27 +223,27 @@ class CampoBatalla(pygame.sprite.Sprite):
 
     def aparecerZombi(self, x, y, listaPrioridades, spwnPt, zombi):
         ubicado = False
-        print("apareciendo un zombi, x y y originales", x, y)
-        print(listaPrioridades)
-        print("tipo de zombie ", zombi.getNombre())
+        #print("apareciendo un zombi, x y y originales", x, y)
+        #print(listaPrioridades)
+        #print("tipo de zombie ", zombi.getNombre())
         for i in range(len(listaPrioridades)):
             if not ubicado:
                 direccion = self.evaluarPrioridad(listaPrioridades[i], spwnPt)
                 if direccion != False:          
-                    print("direccion sugerida", direccion)
+                    #print("direccion sugerida", direccion)
                     if direccion == "izquierda":
-                        print("entró izq")
+                        #print("entró izq")
                         y -= 1
                     elif direccion == "derecha":
-                        print("entró der")
+                        #print("entró der")
                         y += 1
                     elif direccion == "arriba":
-                        print("entró arriba")
+                        #print("entró arriba")
                         x -= 1
                     else: #abajo
-                        print("entró al else: se asume que abajo")
+                        #print("entró al else: se asume que abajo")
                         x += 1
-                    print("apareciendo a un zombi, x y y nuevos: ", x, y)
+                    #print("apareciendo a un zombi, x y y nuevos: ", x, y)
                     if self.matriz[x][y].getTipo() == "estandar" or self.matriz[x][y].getTipo() == "casillaAlien": #si la casilla esta vacia o había un alien (se lo come)
                         self.matriz[x][y].setTipo("casillaZombi")
                         self.matriz[x][y].setImagen(zombi.getImagen()) 
@@ -271,7 +264,7 @@ class CampoBatalla(pygame.sprite.Sprite):
                     zombi = self.Arbitro.rival.agregarZombi()
                     self.aparecerZombi(fila, columna, listaPrioridades, self.matriz[fila][columna], zombi)
                     contador +=1
-        print("se activaron", contador, "spwn pts existentes")
+        #print("se activaron", contador, "spwn pts existentes")
 
     def instanciarSpwnPts(self):
         sp = SpawningPoint(self.framePG, self.ruta, False, False, False, False)
@@ -352,7 +345,8 @@ class CampoBatalla(pygame.sprite.Sprite):
                                 elif self.verificarCasilla(fila, columna +1, "casillaZombi"):
                                     self.matarZombi(fila, columna +1)
                         except:
-                            print("algo anda mal, posiblemente se sale de los índices existentes")
+                            pass
+                            #print("algo anda mal, posiblemente se sale de los índices existentes")
 
     def generarSpwnPt(self):
         contador = 0
@@ -364,19 +358,20 @@ class CampoBatalla(pygame.sprite.Sprite):
             self.matriz[x][y] = spwnPt
             if self.maxX<4:
                 self.maxX += 1
-                print("nuevo maxX: ", self.maxX)
+                #print("nuevo maxX: ", self.maxX)
             if 1<self.minY:
                 self.minY -=1 
-                print("nuevo minY: ", self.minY)
+                #print("nuevo minY: ", self.minY)
 
             bloque= self.asignarBloque(x, y)
             listaPrioridades = self.definirPrioridad(bloque, x)
             zombi= self.Arbitro.rival.agregarZombi() #Rival reciente es la ultima pos de la lista de zombies que genera la PC
             self.aparecerZombi(x, y, listaPrioridades, spwnPt, zombi)
             contador +=1 
-            print(" generó un sp, hay ", contador)
+            #print(" generó un sp, hay ", contador)
         else: 
-            print("no generó sp, hay ", contador, "casilla a la que quiso acceder ", x, y)
+            pass
+            #print("no generó sp, hay ", contador, "casilla a la que quiso acceder ", x, y)
 
     def desplazarZombis(self):
         permitido = False
@@ -387,39 +382,39 @@ class CampoBatalla(pygame.sprite.Sprite):
                 y = columna
                 if self.matriz[fila][columna].getTipo() == "casillaZombi":
                     bloque= self.asignarBloque(fila, columna)
-                    print("bloque: ",bloque)
+                    #print("bloque: ",bloque)
                     listaPrioridades = self.definirPrioridad(bloque, fila)   
-                    print(listaPrioridades)
+                    #print(listaPrioridades)
                     for i in range(len(listaPrioridades)):
-                        print("Corrida del for #", i+1, "dirección de la lista que se esta evaluando ", listaPrioridades[i])
+                        #print("Corrida del for #", i+1, "dirección de la lista que se esta evaluando ", listaPrioridades[i])
                         if not permitido:
                             if listaPrioridades[i] == "izquierda":
-                                print("desplazamiento izquierda")
+                                #print("desplazamiento izquierda")
                                 y = columna -1
                                 permitido = self.evaluarPosicion(x, y)
 
                             elif listaPrioridades[i] == "derecha":
-                                print("desplazamiento derecha")
+                                #print("desplazamiento derecha")
                                 y = columna +1
                                 permitido = self.evaluarPosicion(x, y)
 
                             elif listaPrioridades[i] == "arriba":
-                                print("desplazamiento arriba")
+                                #print("desplazamiento arriba")
                                 x = fila -1
                                 permitido = self.evaluarPosicion(x, y)
                             elif listaPrioridades[i] == "abajo":
-                                print("desplazamiento abajo")
+                                #print("desplazamiento abajo")
                                 x = fila +1
                                 permitido = self.evaluarPosicion(x, y)
                             else:
-                                print("el else del desplazamiento, posiblemente el zombi quedó encerrado")
+                                #print("el else del desplazamiento, posiblemente el zombi quedó encerrado")
                                 pass
                         
                     if permitido and self.matriz[x][y].getTipo() == "casillaAlien":
-                        print("entró a setear el desplazamiento")
-
+                        #print("entró a setear el desplazamiento")
+                        print("*********Personaje comido:",self.matriz[x][y].getPersonaje().getNombre())
                         self.matriz[x][y].getPersonaje().restarVida(10)
-        
+
                         self.matriz[fila][columna].setTipo("estandar")
                         self.matriz[x][y].setTipo("casillaZombi")
 
@@ -431,12 +426,11 @@ class CampoBatalla(pygame.sprite.Sprite):
                         
                         self.matriz[fila][columna] = Casilla(self.framePG, self.ruta) #ojoooo, veamos si le guarda todo lo que tenia seteado
                         print("se lo comeee")
-                        print("PERSONAJE EN EL CAMPO COMIDO: ",self.matriz[x][y].getPersonaje().getNombre())
                         ###PENSAAAR QUE HACER CON EL TURNO DEL ALIEN
                     elif permitido and self.matriz[x][y].getTipo() == "estandar":                
-                        print("solo avanza")
-                        print("casilla anterior:", fila, columna, "ahora hay", self.matriz[fila][columna].getPersonaje() )
-                        print("casilla nueva:", x, y, "ahora hay", self.matriz[x][y].getPersonaje())
+                        #print("solo avanza")
+                        #print("casilla anterior:", fila, columna, "ahora hay", self.matriz[fila][columna].getPersonaje() )
+                        #print("casilla nueva:", x, y, "ahora hay", self.matriz[x][y].getPersonaje())
                         self.matriz[fila][columna].setTipo("estandar")
                         self.matriz[x][y].setTipo("casillaZombi")
 
@@ -448,7 +442,8 @@ class CampoBatalla(pygame.sprite.Sprite):
                         
                         self.matriz[fila][columna] = Casilla(self.framePG, self.ruta)
                     else:
-                        print("no permitido, y/o no tipo alien o casilla")
+                        pass
+                        #print("no permitido, y/o no tipo alien o casilla")
               
     def generarMatriz(self):      
         matrizCuadriculada = []
@@ -550,6 +545,7 @@ class CampoBatalla(pygame.sprite.Sprite):
     def atacar(self,x,y):
         if self.verificarAtacar(x,y):
             self.matriz[x][y].getPersonaje().restarVida(self.Arbitro.getJugadorEnTurno().getAtaque())
+            self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno
             return True
         else:
             return False
@@ -613,11 +609,15 @@ class CampoBatalla(pygame.sprite.Sprite):
         self.framePG.blit(texto1, (1100, 477))
         self.framePG.blit(texto2, (1050, 510))
         self.framePG.blit(texto3, (1021, 570))
-
     def manejarEventos(self):   
         ataque = False   
-        while not self.terminar:  
-            self.dibujarTablero()
+        while not self.terminar:             
+            if self.Arbitro.evaluarFin():
+                pygame.draw.rect(self.framePG, (180,66,16), [10, 19, 1000, 900], 0)#rectangulo de dibujo
+                finJuego = self.fuente.render("Fin del Juego... Presione ESC para salir." ,True, (0,0,0))
+                self.framePG.blit(finJuego, (10, 19))
+            else:
+                self.dibujarTablero()
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     self.salir()
@@ -630,7 +630,6 @@ class CampoBatalla(pygame.sprite.Sprite):
                         self.pasarPotenciador += 1
                     elif evento.key == pygame.K_d:
                         #Depende del arma escogida .setAtaque(), puños <4, laser <7, meteoro<10 
-
                         self.pasarArma += 1
                 elif evento.type == pygame.MOUSEBUTTONDOWN:
                     if self.btnCurar.verificarPresionado(pygame.mouse.get_pos()):
@@ -654,8 +653,7 @@ class CampoBatalla(pygame.sprite.Sprite):
                     else: 
                         self.desplazarZombis()
                     #self.activarSpwnPts()
-                    self.generarSpwnPt()
-                    
+                    self.generarSpwnPt()       
             self.actualizarAcciones()
             pygame.display.update()      
             

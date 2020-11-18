@@ -41,7 +41,11 @@ class Personaje():
         return self.vida
     def restarVida(self,ataqueRecibo):
         if self.vulnerable:
-            self.vida -= ataqueRecibo
+            if ataqueRecibo > self.vida:
+                self.vida = 0
+                self.accionesTurno = 0
+            else:
+                self.vida -= ataqueRecibo
     def getAtaque(self):
         return self.ataque
     def setAtaque(self,valor):
@@ -188,7 +192,8 @@ class Alien(Personaje):
         self.accionesTurno-=1
     def getAccionesDisponibles(self):
         if self.accionesTurno==0:
-            self.accionesTurno = 3
+            if self.morir()==False:
+                self.accionesTurno = 3
             return 0
         else:
             return self.accionesTurno
