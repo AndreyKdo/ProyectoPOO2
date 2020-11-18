@@ -8,7 +8,7 @@ class Casilla:
         self.imagen = "imagenes/baseZombie.png"
         self.framePG = framePG
         self.ruta = ruta
-        self.dimCuadros = 100 #OJO que está alambrado
+        self.dimCuadros = 100 #OJO que es): im) cadenatá alambrado
         self.personaje = object
         # ---------------------
         #image_path = os.path.join("data", "images")
@@ -47,24 +47,7 @@ class Casilla:
         pygame.display.flip()   
 
     def getTipo(self):
-        return self.tipo;   
- 
-
-class Obstaculo(Casilla):
-    def __init__(self, framePG, ruta, bloqueoIzq, bloqueoDer, bloqueoArr, bloqueoAba):
-        super().__init__(framePG, ruta)
-        self.tipo = "obstaculo"
-        self.bloqueoIzq = bloqueoIzq
-        self.bloqueoDer = bloqueoDer
-        self.bloqueoArr = bloqueoArr
-        self.bloqueoAba = bloqueoAba
-        self.imagen = "imagenes/obstaculo.png"
-
-    def setBloqueoIzq(self, bloqueoIzq):
-        self.bloqueoIzq #preguntar 
-
-    def consultarBloqueoIzq(self, bloqueoIzq):
-        return self.bloqueoIzq        
+        return self.tipo;       
 
 
 class Base(Casilla):
