@@ -124,6 +124,9 @@ class Arbitro():
         else:
             self.ubicacionEnlista += 1
             self.turnoRival = False
+    def terminarJuego(self):
+        for alien in self.listaJugadores:
+            alien.restarVida(100)
     def evaluarFin(self):
         for alien in self.listaJugadores:
             if alien.morir()==False:
@@ -303,6 +306,8 @@ class CampoBatalla(pygame.sprite.Sprite):
                 return True
             elif self.matriz[x][y].getTipo() == "estandar": #si porque está vacía
                 return True
+            elif self.matriz[x][y].getTipo() == "base" and self.matriz[x][y].getAliada():
+                return True
             else:
                 print("cumple los índices pero no es ni casilla alien ni estandar")
                 return False
@@ -445,6 +450,8 @@ class CampoBatalla(pygame.sprite.Sprite):
                         self.matriz[x][y].setImagen(imagen)
                         
                         self.matriz[fila][columna] = Casilla(self.framePG, self.ruta)
+                    elif permitido and self.matriz[x][y].getTipo() == "base":
+                        self.Arbitro.terminarJuego() 
                     else:
                         pass
                         #print("no permitido, y/o no tipo alien o casilla")
@@ -542,14 +549,18 @@ class CampoBatalla(pygame.sprite.Sprite):
     def verificarAtacar(self,x,y):
         ubicacion = self.Arbitro.getJugadorEnTurno().getUbicacion()
         rangoAtaque = self.Arbitro.getJugadorEnTurno().getRangoAtaque()
-        if self.verificarCercania(x,y,rangoAtaque) and self.verificarCasilla(x,y,"casillaZombi"):
+        if self.verificarCercania(x,y,rangoAtaque) and self.verificarCasilla(x,y,"casillaZombi"):           
             return True
         else:
             return False
     def atacar(self,x,y):
         if self.verificarAtacar(x,y):
-            self.matriz[x][y].getPersonaje().restarVida(self.Arbitro.getJugadorEnTurno().getAtaque())
-            self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno
+            if self.matriz[x][y].getPersonaje().getVidaActual()<=0:
+                self.matriz[x][y] = Casilla(self.framePG, self.ruta)
+                self.matriz[x][y].setTipo("estandar")
+            else:
+                self.matriz[x][y].getPersonaje().restarVida(self.Arbitro.getJugadorEnTurno().getAtaque())
+                print("ataca:", self.matriz[x][y].getPersonaje().getNombre())
             return True
         else:
             return False
@@ -645,13 +656,13 @@ class CampoBatalla(pygame.sprite.Sprite):
                             coordenadas = self.getCasillaSeleccionada()                       
                             if self.mover(coordenadas[0], coordenadas[1]):
                                 self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno
-                            elif self.atacar(coordenadas[0], coordenadas[1]):
+                            if self.atacar(coordenadas[0], coordenadas[1]):
                                 #saber el ataque que se hizo para setear el atributo ataque de Personaje
                                 self.Arbitro.getJugadorEnTurno().restarAcciones()#resta una acción del turno                                               
                                 # zombi cercano . restarVida(ataque)
                         except IndexError:
                             pass #Error: debe seleccionar una ubicación de la matriz mostrada
-            if self.Arbitro.getJugadorEnTurno().getAccionesDisponibles()==0:
+            if self.Arbitro.getJugadorEnTurno().getAccionesDisponibles()==0 or self.Arbitro.getJugadorEnTurno().morir():
                 self.Arbitro.asignarTurno()
                 if self.Arbitro.getTurnoRival():
                     if ataque != False and ataque > 3:

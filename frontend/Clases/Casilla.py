@@ -64,9 +64,12 @@ class Base(Casilla):
         else:
             base = "imagenes/baseZombie.png"
         return base
-
+    def getAliada(self):
+        return self.aliada
     def evaluarConquistada(self):
-        pass
+        if self.aliada:
+            return True
+        return False
 
 
 class SpawningPoint(Casilla): #Asumí el atributo zombi como el tipo, (int)
