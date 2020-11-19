@@ -252,6 +252,8 @@ class CampoBatalla(pygame.sprite.Sprite):
                         x += 1
                     #print("apareciendo a un zombi, x y y nuevos: ", x, y)
                     if self.matriz[x][y].getTipo() == "estandar" or self.matriz[x][y].getTipo() == "casillaAlien": #si la casilla esta vacia o había un alien (se lo come)
+                        if self.matriz[x][y].getTipo() == "casillaAlien":
+                            self.matriz[x][y].getPersonaje().restarVida(10)
                         self.matriz[x][y].setTipo("casillaZombi")
                         self.matriz[x][y].setImagen(zombi.getImagen()) 
                         self.matriz[x][y].setPersonaje(zombi)
@@ -371,7 +373,6 @@ class CampoBatalla(pygame.sprite.Sprite):
             if 1<self.minY:
                 self.minY -=1 
                 #print("nuevo minY: ", self.minY)
-
             bloque= self.asignarBloque(x, y)
             listaPrioridades = self.definirPrioridad(bloque, x)
             zombi= self.Arbitro.rival.agregarZombi() #Rival reciente es la ultima pos de la lista de zombies que genera la PC
