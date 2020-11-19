@@ -253,7 +253,7 @@ class CampoBatalla(pygame.sprite.Sprite):
                     #print("apareciendo a un zombi, x y y nuevos: ", x, y)
                     if self.matriz[x][y].getTipo() == "estandar" or self.matriz[x][y].getTipo() == "casillaAlien": #si la casilla esta vacia o había un alien (se lo come)
                         if self.matriz[x][y].getTipo() == "casillaAlien":
-                            self.matriz[x][y].getPersonaje().restarVida(10)
+                            self.matriz[x][y].getPersonaje().restarVida(100)
                         self.matriz[x][y].setTipo("casillaZombi")
                         self.matriz[x][y].setImagen(zombi.getImagen()) 
                         self.matriz[x][y].setPersonaje(zombi)
@@ -423,7 +423,7 @@ class CampoBatalla(pygame.sprite.Sprite):
                     if permitido and self.matriz[x][y].getTipo() == "casillaAlien":
                         #print("entró a setear el desplazamiento")
                         print("*********Personaje comido:",self.matriz[x][y].getPersonaje().getNombre())
-                        self.matriz[x][y].getPersonaje().restarVida(10)
+                        self.matriz[x][y].getPersonaje().restarVida(100)
 
                         self.matriz[fila][columna].setTipo("estandar")
                         self.matriz[x][y].setTipo("casillaZombi")
@@ -629,9 +629,11 @@ class CampoBatalla(pygame.sprite.Sprite):
         ataque = False   
         while not self.terminar:             
             if self.Arbitro.evaluarFin():
-                pygame.draw.rect(self.framePG, (180,66,16), [10, 19, 1000, 900], 0)#rectangulo de dibujo
-                finJuego = self.fuente.render("Fin del Juego... Presione ESC para salir." ,True, (0,0,0))
-                self.framePG.blit(finJuego, (10, 19))
+                pygame.draw.rect(self.framePG, (2,54,77), [10, 19, 990, 880], 0)#rectangulo de dibujo
+                finJuego = self.fuente.render("Hemos perdido, ¡No te preocupes el cinturón de Andrómeda te da otra oportunidad!" ,True, (255,255,255))
+                finJuego2 = self.fuente.render("Presione ESC para salir." ,True, (255,255,255))
+                self.framePG.blit(finJuego, (40, 250))
+                self.framePG.blit(finJuego2, (200, 350))
             else:
                 self.dibujarTablero()
             for evento in pygame.event.get():
